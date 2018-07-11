@@ -119,8 +119,8 @@ public class GenotypeGraph {
 
 	/**
 	 * Casts an ArrayList<boolean[]> to a boolean[][] 
-	 * @param list
-	 * @return
+	 * @param  list (of arrays)
+	 * @return a matrix
 	 */
 	private boolean[][] toBoolMatrix(ArrayList<boolean[]> list) {
 		boolean[][] matrix = new boolean[list.size()][list.get(0).length];
