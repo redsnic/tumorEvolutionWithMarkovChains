@@ -15,6 +15,7 @@ public class GenotypeNode implements Comparable<GenotypeNode> {
 	int id;
 	long numberOfMutations = 0;
 	double probability = 0.;
+	public double emissionProbability = -1; /* -1 means not computed */
 	
 	/**
 	 * updates the Id of this node to a new one

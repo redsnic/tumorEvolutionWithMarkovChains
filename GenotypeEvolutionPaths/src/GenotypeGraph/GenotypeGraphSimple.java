@@ -17,12 +17,16 @@ public class GenotypeGraphSimple extends GenotypeGraph{
 		super(labels, genotypes); 
 	}
 	
+	public GenotypeGraphSimple(String[] labels, ArrayList<boolean[]> genotypes, int thres) {
+		super(labels, genotypes, thres); 
+	}
+	
 	public GenotypeGraphSimple() { 
 		super();
 	}
 	
-	public GenotypeGraphSimple(int n) {
-		super(n);
+	public GenotypeGraphSimple(int thres) {
+		super(thres);
 	}
 	
 	@Override 
@@ -44,8 +48,6 @@ public class GenotypeGraphSimple extends GenotypeGraph{
 		if (this.size() == 0){ /* there are no nodes */
 			return;
 		}
-		
-		System.out.println(this.nodes);
 			
 		long count = 1;        /* count nodes */
 		compressed.add(this.nodes.get(0));

@@ -36,7 +36,7 @@ public class GenotypeMarkovNode implements MarkovNode {
 
 	@Override
 	public void add(MarkovNode other, double weight) {
-		assert (Utils.sumDouble(this.weights)+weight) <= 1; 
+		assert (Utils.sumDouble(this.weights)+weight) <= 1.0001 : "value greater than 1 was " + (Utils.sumDouble(this.weights)+weight) + "\n"; 
 		nodes.add((GenotypeMarkovNode) other);
 		weights.add(weight);
 	}

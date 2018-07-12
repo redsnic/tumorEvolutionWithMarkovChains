@@ -1,6 +1,7 @@
 package GenotypeGraph;
 
 import java.util.ArrayList;
+import java.util.Stack;
 
 import MarkovChains.MarkovChain;
 import Utils.Utils;
@@ -26,6 +27,8 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 	 */
 	ArrayList<ArrayList<Double>> finalWeights;
 	
+	GenotypeNode root = null;
+	
 	/**
 	 * Default constructor, enriches the simple genotype graph with weights 
 	 * @param labels     HUGO symbols for genes
@@ -38,13 +41,19 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 		prepareGraph();
 	}
 	
+	public WeightedGenotypeGraph(String[] labels, ArrayList<boolean[]> genotypes, int thres) {
+		super(labels, genotypes, thres);    /* prepare graph */
+		prepareGraph();
+	}
+	
+	
 	public WeightedGenotypeGraph(){
 		super();
 		prepareGraph();
 	}
 	
-	public WeightedGenotypeGraph(int n){
-		super(n);
+	public WeightedGenotypeGraph(int thres){
+		super(thres);
 		prepareGraph();
 	}
 	
@@ -63,6 +72,9 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 		setDownWeights();
 		setUpWeights();	
 		setFinalWeights();
+		
+		/* compute emission probabilities for each node */ 
+		computeEmissionProbability();
 	}
 	
 	/**
@@ -105,6 +117,7 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 		}
 		root.probability = 1; /* TODO check if it is better to use 0 or 1 */
 		this.nodes.add(root);
+		this.root = root;
 	}
 
 	/**
@@ -184,7 +197,6 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 		for(int i = 0; i< this.nodes.size(); i++){
 			this.nodes.get(i).setId(i);  
 			this.nodes.get(i).probability = this.counts.get(i)/normFactor; 
-			System.out.println(this.counts.get(i));
 		}
 	}
 	
@@ -208,7 +220,7 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 	/* adds edges'weigths */
 	@Override
 	public void toDotNode(GenotypeNode node){
-		System.out.println(node.getId() + " [label=\"" + this.nodeLabel(node) + "\"]");
+		System.out.println(node.getId() + " [label=\"<" + this.nodeLabel(node) + ", " + String.format("%.3f", node.probability) + ">\"]");
 		int j=0;
 		for(GenotypeNode child : node.adj ){
 			System.out.println(node.getId() + " -> " + child.getId() + " [label=\"" + String.format("%.3f", this.finalWeights.get(node.id).get(j)) + "\"]");
@@ -243,6 +255,78 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 		}
 		
 		return mc;
+	}
+	
+	/**
+	 * Simulates the graph to produce an artificial observed genotype
+	 * @return an artificial genotype
+	 */
+	public boolean[] generateData(){
+		GenotypeNode position = this.root;
+		return generateDataNext(position);
+	}
+
+	private void computeEmissionProbability() {
+		computeEmissionProbabilityRec(this.root);
+		this.root.emissionProbability = 0.; /* no emission probability for clonal genotype */
+		double sum = 0;
+		for(GenotypeNode next : nodes){
+			sum += next.probability*next.emissionProbability; 
+		}
+		System.out.println("---> " + sum);
+	}
+
+	/**
+	 * Computes the sum of the weights (observed probabilities) 
+	 * of the reachable nodes from position (maintaining "splitting" information) TODO
+	 * @param position the starting point of the visit
+	 * TODO check if efficiency can be improved
+	 */
+	private double computeEmissionProbabilityRec(GenotypeNode position) {
+		
+		if(position.emissionProbability != -1){
+			return position.emissionProbability;
+		}
+		
+		double num = position.probability;
+		double denom = num;
+		//TODO
+		for(GenotypeNode next : position.adj){
+			denom += computeEmissionProbabilityRec(next) + next.probability * (upWeights.get(next.id).get(next.findParentFromId(position.id))/Utils.sumDouble(upWeights.get(next.id)));
+		}
+		
+		position.emissionProbability = (num/denom);
+		return denom-num;
+		
+	}
+
+	/**
+	 * recursive function for synthetic data generation 
+	 * @param position last node reached in the visit
+	 * @return an artificial genotype
+	 */
+	private boolean[] generateDataNext(GenotypeNode position) {
+		double chooseRoute = Math.random();
+		int i=0;
+		if(position.adj.size() == 0) {
+			return position.genotype;
+		}
+		for(GenotypeNode next : position.adj){
+			if(finalWeights.get(position.id).get(i)>chooseRoute){
+				double stop = Math.random();
+				/* TODO normalize output probability using down weights */
+				if(stop < (next.emissionProbability)){
+					return next.genotype; 
+				} else {
+					return generateDataNext(next);
+				}
+			} else {
+				chooseRoute -= finalWeights.get(position.id).get(i);
+				i++;
+			}
+		}
+		assert(false); // unreachable
+		return null;
 	}
 	
 	
