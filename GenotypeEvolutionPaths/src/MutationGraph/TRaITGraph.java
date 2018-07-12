@@ -9,7 +9,7 @@ import Utils.Utils;
  * Class to represent the output of TRaIT and to convert it in
  * a Markov chain. 
  * @author rossi
- *
+ * TODO wrong interpretation of weights on edges
  */
 public class TRaITGraph {
 	

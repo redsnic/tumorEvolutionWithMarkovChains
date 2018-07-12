@@ -37,4 +37,5 @@ ArrayList<MarkovNode> nodes;
 		System.out.println("}");
 	}
 	
+	
 }

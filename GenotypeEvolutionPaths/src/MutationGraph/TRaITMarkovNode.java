@@ -5,6 +5,10 @@ import java.util.ArrayList;
 import MarkovChains.MarkovNode;
 import Utils.Utils;
 
+/**
+ * @author redsnic
+ * TODO wrong interpretation of weights on edges
+ */
 public class TRaITMarkovNode implements MarkovNode {
 
 	long id = 0;

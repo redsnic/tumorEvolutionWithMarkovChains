@@ -5,16 +5,60 @@ import java.util.ArrayList;
 /**
  * A base class for a single node from a genotype graph
  * @author rossi
- *
+ * 
+ * INVARIANT: numberOfMutations = #count of true in genotype
+ * 			  probability, emissionProbability , steadyStateProbability in [0,1]
  */
 public class GenotypeNode implements Comparable<GenotypeNode> {
-	
+	/**
+	 * the state of mutations relative of this node
+	 */
 	boolean[] genotype = null;
-	ArrayList<GenotypeNode> adj = new ArrayList<GenotypeNode>();
-	ArrayList<GenotypeNode> parents = new ArrayList<GenotypeNode>();
-	int id;
+	/**
+	 * count of mutated genes in the genotype associated with this node 
+	 */
 	long numberOfMutations = 0;
+	/**
+	 * Adjacency list of this node
+	 */
+	ArrayList<GenotypeNode> adj = new ArrayList<GenotypeNode>();
+	/**
+	 * parents of this node (nodes that have and edge to this node)
+	 */
+	ArrayList<GenotypeNode> parents = new ArrayList<GenotypeNode>();
+	/**
+	 * unique id to be used for next node
+	 */
+	int id;
+	/**
+	 * Observed probability extracted from dataset
+	 */
 	double probability = 0.;
+
+	/**
+	 * Probability at the steady state of this node
+	 */
+	double steadyStateProbability = 0;
+
+	//TODO 
+	double emissionProbability = 0; 
+	int passFrequency = 0;
+	
+	/**
+	 * Getter for the adj list of this node
+	 * @return the adj list
+	 */
+	public ArrayList<GenotypeNode> getAdj(){
+		return this.adj;
+	}
+	
+	/**
+	 * Getter for the genotype of this node
+	 * @return the genotype associated with this node
+	 */
+	public boolean[] getGenotype(){
+		return this.genotype;
+	}
 	
 	/**
 	 * updates the Id of this node to a new one
@@ -34,6 +78,19 @@ public class GenotypeNode implements Comparable<GenotypeNode> {
 		this.genotype = genotype;
 		this.numberOfMutations = countMutations();
 		this.id = id;
+		assert (this.adj.size() == 0);
+	}
+	
+	/**
+	 * Default constructor, creates a node labeled with a genotype
+	 * and with an empty 
+	 * @param genotype
+	 * REQUIRE id must be set to be unique afterwards 
+	 */
+	public GenotypeNode(boolean[] genotype){
+		this.genotype = genotype;
+		this.numberOfMutations = countMutations();
+		this.id = -1;
 		assert (this.adj.size() == 0);
 	}
 	
@@ -161,12 +218,17 @@ public class GenotypeNode implements Comparable<GenotypeNode> {
 		
 	}
 
+	/**
+	 * Linear search among parents to find which one has parId id 
+	 * @param  parId id to find
+	 * @return position of parent in the adj list of this (-1 if not found)
+	 */
 	public int findParentFromId(int parId) {
 		for( int i = 0; i<this.parents.size() ;i++){
 			if(this.parents.get(i).id==parId) return i;
 		}
+		assert(false): "Parent with id " + parId + " not found in node " + this.id;
 		return -1;
 	}
 	
-
 }

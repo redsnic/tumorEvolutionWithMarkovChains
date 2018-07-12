@@ -20,6 +20,10 @@ public class GenotypeGraph {
 	int id = 0; // unique id for nodes
 	private int threshold = 0; /* 0 = no threshold on the number of genes */
 	
+	public String[] getLabels(){
+		return this.geneLabelsOrder;
+	}
+	
 	/**
 	 * default constructor, creates a graph consisting
 	 * of many genotype nodes
@@ -30,10 +34,23 @@ public class GenotypeGraph {
 	 */
 	public GenotypeGraph(String[] labels, ArrayList<boolean[]> genotypes){
 		this.geneLabelsOrder = labels.clone();
-		for(boolean[] g : genotypes){
-			nodes.add(new GenotypeNode(g, this.id));
-			this.id++;
-		}
+		ArrayList<Integer> geneMutations = computeGeneMutations(genotypes);
+		boolean[] toBeKept = computeElimiations(geneMutations);
+		reduceGenes(toBeKept, genotypes);
+		prepareEdges();
+	}
+	
+	/**
+	 * Alternate constructor also setting a threshold on the maximum number of genes
+	 * @param labels
+	 * @param genotypes
+	 */
+	public GenotypeGraph(String[] labels, ArrayList<boolean[]> genotypes, int thres){
+		this.threshold = thres;
+		this.geneLabelsOrder = labels.clone();
+		ArrayList<Integer> geneMutations = computeGeneMutations(genotypes);
+		boolean[] toBeKept = computeElimiations(geneMutations);
+		reduceGenes(toBeKept, genotypes);
 		prepareEdges();
 	}
 	
@@ -139,19 +156,21 @@ public class GenotypeGraph {
 	 */
 	private boolean[] computeElimiations(ArrayList<Integer> geneMutations) {
 		ArrayList<Triplet<String,Integer,Integer>> geneInformation = new ArrayList<Triplet<String,Integer,Integer>>();
-		for(int i = 0; i<this.geneLabelsOrder.length; i++){
+		for(int i = 0; i<geneMutations.size(); i++){
 			/* (HUGO symbol, #mutations, original position */ 
 			Triplet<String,Integer,Integer> temp = new Triplet<String,Integer,Integer>(this.geneLabelsOrder[i], geneMutations.get(i), i);
 			geneInformation.add(temp);
 		}
-		Collections.sort(geneInformation, (a,b) -> a.snd()>b.snd()?1:(a.snd()==b.snd()?0:-1)); /* sort on second element */
+		Collections.sort(geneInformation, (a,b) -> a.snd()>b.snd()?-1:(a.snd()==b.snd()?0:1)); /* sort on second element (desc) */
 		int thres = this.threshold!=0?this.threshold:geneInformation.size();                   /* 0 means no threshold */
 		boolean res[] = new boolean[geneInformation.size()];
-		int lastNumberOfMutations = 0;
+		int lastNumberOfMutations = -1;
 		int i=0;
-		for(i=0; i<thres && i<geneInformation.size() ; i++){ /* keep the thres most mutated genes */
-			res[geneInformation.get(i).thr()]=true;
-			lastNumberOfMutations = geneInformation.get(i).snd();
+		for(; i<thres && i<geneInformation.size() ; i++){                                      /* keep the thres most mutated genes */
+			if(geneInformation.get(i).snd()>0){                                /* exclude gene never seen as mutated in the dataset */
+				res[geneInformation.get(i).thr()]=true;
+				lastNumberOfMutations = geneInformation.get(i).snd();
+			}
 		}
 		/* consider also every gene with the same number of mutations of the least mutated yet considered gene */
 		for(; i<geneInformation.size() && lastNumberOfMutations==geneInformation.get(i).snd() ; i++){ 
@@ -244,6 +263,6 @@ public class GenotypeGraph {
 			this.nodes.get(i).setId(i);
 		}
 	}
-	
+
 	
 }

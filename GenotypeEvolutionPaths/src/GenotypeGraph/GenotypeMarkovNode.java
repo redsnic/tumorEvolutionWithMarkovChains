@@ -7,9 +7,21 @@ import Utils.Utils;
 
 public class GenotypeMarkovNode implements MarkovNode {
 
+	/**
+	 * Unique id of this node
+	 */
 	long id = 0;
+	/**
+	 * adjacency list of this node
+	 */
 	ArrayList<GenotypeMarkovNode> nodes;
+	/**
+	 * weights associated with each outgoing edge of this node
+	 */
 	ArrayList<Double> weights;
+	/**
+	 * label used when printing this node
+	 */
 	String label;
 	
 	/**
@@ -36,7 +48,7 @@ public class GenotypeMarkovNode implements MarkovNode {
 
 	@Override
 	public void add(MarkovNode other, double weight) {
-		assert (Utils.sumDouble(this.weights)+weight) <= 1; 
+		assert (Utils.sumDouble(this.weights)+weight) <= 1.0001 : "value greater than 1 was " + (Utils.sumDouble(this.weights)+weight) + "\n"; 
 		nodes.add((GenotypeMarkovNode) other);
 		weights.add(weight);
 	}

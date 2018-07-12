@@ -11,25 +11,50 @@ import java.util.Collections;
  */
 public class GenotypeGraphSimple extends GenotypeGraph{
 
+	/**
+	 * List of counts for each different genotype observed in the data set
+	 * (usable to compute observed probabilities)
+	 */
 	ArrayList<Long> counts;
-	
+	/**
+	 * Default constructor
+	 * @param labels     HUGO symobl for each gene (in dataset order)
+	 * @param genotypes  dataset
+	 */
 	public GenotypeGraphSimple(String[] labels, ArrayList<boolean[]> genotypes) {
 		super(labels, genotypes); 
 	}
+	/**
+	 * Alternate consuctor with limited number of considered genes
+	 * @param labels     HUGO symobl for each gene (in dataset order)
+	 * @param genotypes  dataset
+	 * @param thres      limit on considered genes
+	 */
 	
+	public GenotypeGraphSimple(String[] labels, ArrayList<boolean[]> genotypes, int thres) {
+		super(labels, genotypes, thres); 
+	}
+	
+	/**
+	 * Default constuctor reading dataset from STDIN
+	 */
 	public GenotypeGraphSimple() { 
 		super();
 	}
 	
-	public GenotypeGraphSimple(int n) {
-		super(n);
+	/**
+	 * Alternate consuctor with limited number of considered genes reading dataset from STDIN
+	 * @param thres    limit on considered genes
+	 */
+	public GenotypeGraphSimple(int thres) {
+		super(thres);
 	}
 	
 	@Override 
 	protected void prepareEdges(){
 		Collections.sort(this.nodes);
 		countAndCompress();
-		linkNodes();
+		linkNodes(); 
 	}
 	
 	/**
@@ -44,8 +69,6 @@ public class GenotypeGraphSimple extends GenotypeGraph{
 		if (this.size() == 0){ /* there are no nodes */
 			return;
 		}
-		
-		System.out.println(this.nodes);
 			
 		long count = 1;        /* count nodes */
 		compressed.add(this.nodes.get(0));
