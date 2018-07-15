@@ -235,6 +235,7 @@ public class GenotypeGraph {
 	}
 	
 	/**
+	 * Prints a node referring to mutated genes with their respective HUGO symbols
 	 * @param node  the node of which the genotype should be printed REQUIRE not null
 	 * @return      the sequence of HUGO symbols of genes that are mutated in a given genotype
 	 */
@@ -254,7 +255,7 @@ public class GenotypeGraph {
 	
 	/**
 	 * updates the node set to a new one
-	 * (also dot ids are recomputed)
+	 * (also dot IDs are recomputed)
 	 * @param newNodes new node set 
 	 */
 	protected void setNodes(ArrayList<GenotypeNode> newNodes){

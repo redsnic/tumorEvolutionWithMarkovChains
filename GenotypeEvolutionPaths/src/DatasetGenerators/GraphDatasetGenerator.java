@@ -20,13 +20,77 @@ public class GraphDatasetGenerator {
 	 * Weights are managed in a matrix
 	 */
 	ArrayList<ArrayList<Double>> W = new ArrayList<ArrayList<Double>>();
+	/**
+	 * unique id for the next node to be added
+	 */
 	int id = 0;
+	/**
+	 * reference to the node containing the clonal genotype
+	 */
 	GenotypeNode root = null;
+	/**
+	 * list of names used as labels for genes in this generator
+	 */
+	private String[] geneLabelsOrder;
+	
+	/**
+	 * Getter for the list of names used as labels for genes in this generator
+	 * @return labels
+	 */
+	public String[] getLabels(){
+		return this.geneLabelsOrder;
+	}
 	
 	/**
 	 * Default constructor (empty graph)
 	 */
-	public GraphDatasetGenerator(){	
+	public GraphDatasetGenerator(String[] labels){	
+		this.geneLabelsOrder = labels;
+	}
+	
+	/**
+	 * Alternate constructor (random graph with n genes)
+	 * @param n number of artificial genes 
+	 */
+	public GraphDatasetGenerator(int n){
+		
+		assert(n<64): "too many genes (long limit)!";
+		this.geneLabelsOrder = new String[n];
+		for(int i=0; i<geneLabelsOrder.length; i++){
+			this.geneLabelsOrder[i] = "G" + i;
+		}
+		
+		boolean[] root = new boolean[n];
+		GenotypeNode nroot = new GenotypeNode(root);
+		this.add(nroot);
+		this.setRoot(nroot);
+		
+		ArrayList<Integer> mutcounts = new ArrayList<Integer>();
+		mutcounts.add(0);
+		
+		for(long i=1 ; i<Math.pow(2, this.geneLabelsOrder.length); i++){
+			boolean[] genotype = Utils.binaryToBoolArray(i, geneLabelsOrder.length);
+			int totals = Utils.sumBool(genotype);
+			double selector = Math.random();
+			
+			if(selector < 1/(double)totals){
+				this.add(new GenotypeNode(genotype));
+				mutcounts.add(totals);
+			}
+		}
+		
+		for(GenotypeNode node : V){
+			link(node,node,Math.random());
+		}
+		
+		for(GenotypeNode a : V){
+			for(GenotypeNode b : V){
+				if(mutcounts.get((int) a.getId())+1==mutcounts.get((int) b.getId()) && Utils.singleMismatch(a.getGenotype(), b.getGenotype())){
+					link(a,b,Math.random());
+				}
+			}
+		}
+
 	}
 	
 	/** 
@@ -106,5 +170,51 @@ public class GraphDatasetGenerator {
 		}
 		return position.getGenotype();		
 	}
+	
+	/**
+	 * print this graph in dot format
+	 */
+	public void toDot(){
+		System.out.println("digraph G{");
+		for(GenotypeNode n : V){
+			this.toDotNode(n);
+		}
+		System.out.println("}");
+	}
+
+	/**
+	 * Dot print of a single node
+	 * @param node the node to be printed
+	 */
+	private void toDotNode(GenotypeNode node) {
+		System.out.println(node.getId() + " [label=\"" + this.nodeLabel(node) + "\"]");
+		double norm = 0.;
+		for(GenotypeNode child : node.getAdj() ){
+			norm+=this.getWeight(node, child);
+		}
+		for(GenotypeNode child : node.getAdj() ){
+			System.out.println(node.getId() + " -> " + child.getId() + " [label=\"" +  String.format("%.3f",this.getWeight(node, child)/norm) + "\"]");
+		}
+	}
+	
+	/**
+	 * Prints a node referring to mutated genes with their respective HUGO symbols
+	 * @param node  the node of which the genotype should be printed REQUIRE not null
+	 * @return      the sequence of HUGO symbols of genes that are mutated in a given genotype
+	 */
+	public String nodeLabel(GenotypeNode node){
+		ArrayList<String> res = new ArrayList<String>();
+		for(int i = 0; i<node.getGenotype().length; i++){
+			if(node.getGenotype()[i]){
+				res.add(this.geneLabelsOrder[i]);
+			}
+		}
+		if(res.size()>0){
+			return res.toString();
+		}else{
+			return "clonal";
+		}
+	}
+	
 
 }

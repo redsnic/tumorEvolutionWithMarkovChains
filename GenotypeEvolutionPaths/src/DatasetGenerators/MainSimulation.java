@@ -7,8 +7,10 @@ import GenotypeGraph.WeightedGenotypeGraph;
 
 public class MainSimulation {
 
+	@SuppressWarnings("unused")
 	private static GraphDatasetGenerator createGraphDatasetGenerator(){
-		GraphDatasetGenerator gen = new GraphDatasetGenerator();
+		String[] labels = {"A","B","C","D"};
+		GraphDatasetGenerator gen = new GraphDatasetGenerator(labels);
 		
 		boolean[] root = {false,false,false,false};
 		boolean[] a = {true,false,false, false};
@@ -61,8 +63,10 @@ public class MainSimulation {
 		return gen;
 	}
 	
+	@SuppressWarnings("unused")
 	private static GraphDatasetGenerator createGraphDatasetGeneratorWithEqualSelfLoopProbability(){
-		GraphDatasetGenerator gen = new GraphDatasetGenerator();
+		String[] labels = {"A","B","C","D"};
+		GraphDatasetGenerator gen = new GraphDatasetGenerator(labels);
 		
 		boolean[] root = {false,false,false,false};
 		boolean[] a = {true,false,false, false};
@@ -115,22 +119,36 @@ public class MainSimulation {
 		return gen;
 	}
 	
-	public static WeightedGenotypeGraph simulate(GraphDatasetGenerator gen, int nSamples, int pathLength, String[] labels){
+	/**
+	 * Simulates the generator to create samples for an artificial data set
+	 * @param gen         generator
+	 * @param nSamples    number of samples to generate in the data set
+	 * @param pathLength  length of path followed in the generator for the simulation
+	 * @return            an artificial data set corresponding to the requests
+	 */
+	public static ArrayList<boolean[]> simulate(GraphDatasetGenerator gen, int nSamples, int pathLength){
 		ArrayList<boolean[]> D = new ArrayList<boolean[]>();
 		for(int i=0; i<nSamples; i++){
 			D.add(gen.simulate(pathLength));
 		}
-		return new WeightedGenotypeGraph(labels, D);
+		return D;
 	}
 	
 	public static void main(String[] args) {
 		
-		GraphDatasetGenerator gen = createGraphDatasetGeneratorWithEqualSelfLoopProbability();
+		//GraphDatasetGenerator gen = createGraphDatasetGenerator();
+		GraphDatasetGenerator gen = new GraphDatasetGenerator(8);
+		System.out.println("Simulation graph: ");
+		gen.toDot();
 		
-		String[] labels = {"A","B","C","D"};
-		
-		WeightedGenotypeGraph sstate = simulate(gen, 100000, 1000, labels);
-		WeightedGenotypeGraph grp = simulate(gen, 100000, 10, labels);
+		String[] labels = gen.getLabels();
+		 
+		WeightedGenotypeGraph sstate = new WeightedGenotypeGraph(labels, simulate(gen, 100000, 1000));
+		ArrayList<boolean[]> D = new ArrayList<boolean[]>();
+		for(int i=1; i<20; i++){ /* modify here to set up data set */
+			D.addAll(simulate(gen, 100, i));
+		}
+		WeightedGenotypeGraph grp = new WeightedGenotypeGraph(labels, D);
 		System.out.println("Generated DAG: ");
 		grp.toDot();
 		System.out.println("Simulated steady state from 'real' model");

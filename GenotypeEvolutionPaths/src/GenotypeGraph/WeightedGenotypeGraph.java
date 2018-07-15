@@ -94,8 +94,9 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 		finalWeights = setAtNull();
 		
 		/* Weight computation */
-		setDownWeights();
 		setUpWeights();	
+		//setDownWeights();
+		setDownWeightsSplitted();
 		setFinalWeights();
 		
 		/* compute emission probabilities for each node */ 
@@ -143,11 +144,65 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 		this.nodes.add(root);
 		this.root = root;
 	}
+	
+	/**
+	 * Use up weight information to split nodes and compute down weights
+	 */
+	private void setDownWeightsSplitted() {
+		double[] weightReachableFromNode = new double[this.nodes.size()];
+		int[] memoVisit = new int[this.nodes.size()];
+		/* start from all 'leaf' nodes (no children)*/
+		for( GenotypeNode node : this.nodes ){
+			assert(node!=null);
+			if(node.adj.size() == 0){
+				setDownWeightsSplittedRec(node, weightReachableFromNode, memoVisit);
+			}
+		}
+	}
+
+	/**
+	 * DP procedure to compute the sum of all the weights of the nodes
+	 * reachable by 'node' (excluding itself) and using the information
+	 * of the upWeights to split the observed probability among its 
+	 * incoming edges
+	 * @param node                      the considered node
+	 * @param weightReachableFromNode   memoization array that has the information of the sum of all the 'splitted' weights that can be reached from this node
+	 * @param memoVisit                 memoization array that has, for each node, the number of times it was considered in the visit
+	 */
+	private void setDownWeightsSplittedRec(GenotypeNode node, double[] weightReachableFromNode, int[] memoVisit) {
+		
+		weightReachableFromNode[node.id]+=node.probability;
+		
+		double norm = Utils.sumDouble(upWeights.get(node.id));
+		
+		for(GenotypeNode parent : node.parents){
+			weightReachableFromNode[parent.id]+=(weightReachableFromNode[node.id]*upWeights.get(node.id).get(node.findParentFromId(parent.id)))/norm;
+			memoVisit[parent.id]++;
+			if(memoVisit[parent.id] == parent.adj.size()){
+				setDownWeightsSplittedRec(parent,weightReachableFromNode,memoVisit);
+			}
+		}
+		
+		double normDown = 0.;
+		
+		for(GenotypeNode child : node.adj){
+			normDown+=weightReachableFromNode[child.id];
+		}
+		ArrayList<Double> lineWeights = new ArrayList<Double>();
+		for(GenotypeNode child : node.adj){
+			lineWeights.add(weightReachableFromNode[child.id]/normDown);
+		}
+		downWeights.set(node.id, lineWeights);
+		
+		
+	}
 
 	/**
 	 * DP procedure to efficiently compute the sum of
 	 * all the weights of nodes reachable (excluding itself) by any node 
 	 */
+	@SuppressWarnings("unused")
+	@Deprecated
 	private void setDownWeights() {
 		for( GenotypeNode node : this.nodes ){
 			assert(node!=null);
@@ -161,6 +216,7 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 	 * @param node  starting point
 	 * @return      sum of weights of nodes reachable by node (including itself) 
 	 */
+	@Deprecated
 	private Double setDownWeightsRec(GenotypeNode node) {
 		assert(node!=null);
 		if(downWeights.get(node.id) != null) {
@@ -185,7 +241,6 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 			setUpWeightsRec(node);
 		}
 	}
-	
 	
 	/**
 	 * DP procedure to efficiently compute the sum of
