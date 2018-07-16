@@ -136,17 +136,17 @@ public class MainSimulation {
 	
 	public static void main(String[] args) {
 		
-		//GraphDatasetGenerator gen = createGraphDatasetGenerator();
-		GraphDatasetGenerator gen = new GraphDatasetGenerator(8);
+		//GraphDatasetGenerator gen = createGraphDatasetGeneratorWithEqualSelfLoopProbability();
+		GraphDatasetGenerator gen = new GraphDatasetGenerator(6);
 		System.out.println("Simulation graph: ");
 		gen.toDot();
 		
 		String[] labels = gen.getLabels();
 		 
-		WeightedGenotypeGraph sstate = new WeightedGenotypeGraph(labels, simulate(gen, 100000, 1000));
+		WeightedGenotypeGraph sstate = new WeightedGenotypeGraph(labels, simulate(gen, 10000, 1000));
 		ArrayList<boolean[]> D = new ArrayList<boolean[]>();
 		for(int i=1; i<20; i++){ /* modify here to set up data set */
-			D.addAll(simulate(gen, 100, i));
+			D.addAll(simulate(gen, 1000000, 6));
 		}
 		WeightedGenotypeGraph grp = new WeightedGenotypeGraph(labels, D);
 		System.out.println("Generated DAG: ");

@@ -2,6 +2,8 @@ package GenotypeGraph;
 
 import java.util.ArrayList;
 
+import javax.xml.ws.soap.Addressing;
+
 import MarkovChains.MarkovChain;
 import Utils.Utils;
 
@@ -182,19 +184,13 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 				setDownWeightsSplittedRec(parent,weightReachableFromNode,memoVisit);
 			}
 		}
-		
-		double normDown = 0.;
-		
-		for(GenotypeNode child : node.adj){
-			normDown+=weightReachableFromNode[child.id];
-		}
+				
 		ArrayList<Double> lineWeights = new ArrayList<Double>();
 		for(GenotypeNode child : node.adj){
-			lineWeights.add(weightReachableFromNode[child.id]/normDown);
+			lineWeights.add(weightReachableFromNode[child.id]);
 		}
 		downWeights.set(node.id, lineWeights);
-		
-		
+
 	}
 
 	/**
@@ -236,18 +232,82 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 	 * following reverse edges
 	 */
 	private void setUpWeights() {
-		for( GenotypeNode node : this.nodes ){
-			assert(node!=null);
-			setUpWeightsRec(node);
-		}
+		int[] memoVisit = new int[this.nodes.size()];
+		double[] memoValues = new double[this.nodes.size()];
+		computeUpWeightsRec(this.root, memoVisit, memoValues);	
+		transposeUpWeights();
 	}
 	
+	/**
+	 * For compatibility reasons the information about upWeight should be 
+	 * stored referring to the child of some parents
+	 * TODO switch to adj matrix implementation 
+	 */
+	private void transposeUpWeights() {
+		
+		ArrayList<ArrayList<Double>> newupw = new ArrayList<ArrayList<Double>>();
+		for(int i=0; i<nodes.size(); i++){
+			newupw.add(new ArrayList<Double>() );
+		}
+		for(GenotypeNode n : this.nodes){
+			for(GenotypeNode par : n.parents){
+				double oldWeight = upWeights.get(par.id).get(par.findChildFromId(n.id));
+				newupw.get(n.id).add(oldWeight);
+			}
+		}
+		upWeights = newupw;
+	}
+
+	/**
+	 * Recursive procedure to compute for each node its upWeights
+	 * @param node          the node in analysis
+	 * @param memoVisit     table counting the number of visits of each node to control the visit itself
+	 * @param memoValues    table to memorize temporarily the results of the computation to improve efficiency
+	 */
+	private void computeUpWeightsRec(GenotypeNode node, int[] memoVisit, double[] memoValues){
+		memoValues[node.id]+=node.probability;
+		ArrayList<Double> lineWeights = new ArrayList<Double>();
+		for(GenotypeNode child : node.adj){
+			memoValues[child.id]+=memoValues[node.id]/node.adj.size();
+			lineWeights.add(memoValues[node.id]/node.adj.size());
+			memoVisit[child.id]++;
+			if(memoVisit[child.id]==child.parents.size()){
+				computeUpWeightsRec(child, memoVisit, memoValues);
+			}
+		}
+		upWeights.set(node.id, lineWeights);
+	}
+	
+	/**
+	 * Computes for each node the number of path that can lead ant ancestor
+	 * to this node
+	 * @param node             node considered
+	 * @param anchestorMatrix  table to memorize the results for each node
+	 * @param memoVisit        table remembering the number of times a node was considered to control the visit
+	 */
+	@Deprecated
+	@SuppressWarnings(value = { "unused" }) 
+	private void prepareAncestorMatrix(GenotypeNode node, int[][] anchestorMatrix, int[] memoVisit) {
+		
+		for(GenotypeNode child : node.adj){
+			Utils.addToFrom(anchestorMatrix[child.id], anchestorMatrix[node.id]);
+			anchestorMatrix[child.id][node.id]++;
+			memoVisit[child.id]++;
+			if(memoVisit[child.id] == child.parents.size()){
+				prepareAncestorMatrix(child, anchestorMatrix, memoVisit);
+			}
+		}
+	}
+
 	/**
 	 * DP procedure to efficiently compute the sum of
 	 * all the weights of nodes reachable by a specified node (excluding itself) following reverse edges
 	 * @param node  starting point
 	 * @return      sum of weights of nodes reachable by node (including itself) following reverse edges
+	 * NOTE: it was considering certain paths multiple times
 	 */
+	@Deprecated
+	@SuppressWarnings(value = { "unused" }) 
 	private Double setUpWeightsRec(GenotypeNode node) {
 		assert(node!=null);
 		if(upWeights.get(node.id) != null){ 

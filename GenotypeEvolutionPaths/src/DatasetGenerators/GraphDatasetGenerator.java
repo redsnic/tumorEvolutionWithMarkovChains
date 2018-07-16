@@ -90,6 +90,12 @@ public class GraphDatasetGenerator {
 				}
 			}
 		}
+		
+		for(GenotypeNode a : V){
+			if(a.getNumberOfParents()==1 && a != this.root){
+				link(this.root,a, Math.random());
+			}
+		}
 
 	}
 	
@@ -193,7 +199,7 @@ public class GraphDatasetGenerator {
 			norm+=this.getWeight(node, child);
 		}
 		for(GenotypeNode child : node.getAdj() ){
-			System.out.println(node.getId() + " -> " + child.getId() + " [label=\"" +  String.format("%.3f",this.getWeight(node, child)/norm) + "\"]");
+			System.out.println(node.getId() + " -> " + child.getId() + " [label=\"" +  String.format("%.3f", (this.getWeight(node, child)/norm)/(1-(this.getWeight(node, node)/norm))) + "\"]");
 		}
 	}
 	

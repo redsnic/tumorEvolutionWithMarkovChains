@@ -89,5 +89,28 @@ public class Utils {
 		return mismatch;
 		
 	}
+
+	
+	
+	
+	/**
+	 * bs |= bs2; for vectors of boolean
+	 * @param bs  Modified with or  
+	 * @param bs2 unmodified
+	 */
+	public static void or(boolean[] bs, boolean[] bs2) {
+		assert(bs.length == bs2.length);
+		for(int i=0; i<bs.length; i++){
+			bs[i] = bs2[i] || bs[i]; 
+		}
+	}
+
+	public static void addToFrom(int[] is, int[] is2) {
+		assert(is.length == is2.length);
+		for(int i=0; i<is.length; i++){
+			is[i] += is2[i]; 
+		}
+		
+	}
 	
 }

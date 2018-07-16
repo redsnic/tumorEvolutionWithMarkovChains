@@ -205,7 +205,6 @@ public class GenotypeNode implements Comparable<GenotypeNode> {
 		if(this.numberOfMutations != other.getNumberOfMutations()+1){
 			return false;
 		}
-		
 		boolean firstMismatchFound = false;
 		for (int i = 0; i < this.genotype.length; i++) {
 			if(this.genotype[i] && !other.genotype[i] && !firstMismatchFound){
@@ -215,7 +214,6 @@ public class GenotypeNode implements Comparable<GenotypeNode> {
 			}
 		}
 		return true;
-		
 	}
 
 	/**
@@ -229,6 +227,18 @@ public class GenotypeNode implements Comparable<GenotypeNode> {
 		}
 		assert(false): "Parent with id " + parId + " not found in node " + this.id;
 		return -1;
+	}
+
+	public int findChildFromId(int childID) {
+		for( int i = 0; i<this.adj.size() ;i++){
+			if(this.adj.get(i).id==childID) return i;
+		}
+		assert(false): "Child with id " + childID + " not found in node " + this.id;
+		return -1;
+	}
+
+	public int getNumberOfParents() {
+		return this.parents.size();
 	}
 	
 }
