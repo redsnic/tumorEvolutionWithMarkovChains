@@ -1,9 +1,10 @@
 package GenotypeGraph;
 
-import java.util.ArrayList;
+import Utils.Utils;
 
 /**
- * A base class for a single node from a genotype graph
+ * A base class for a single node from a genotype graph 
+ * (based on adj matrix)
  * @author rossi
  * 
  * INVARIANT: numberOfMutations = #count of true in genotype
@@ -13,19 +14,11 @@ public class GenotypeNode implements Comparable<GenotypeNode> {
 	/**
 	 * the state of mutations relative of this node
 	 */
-	boolean[] genotype = null;
+	private boolean[] genotype = null;
 	/**
 	 * count of mutated genes in the genotype associated with this node 
 	 */
-	long numberOfMutations = 0;
-	/**
-	 * Adjacency list of this node
-	 */
-	ArrayList<GenotypeNode> adj = new ArrayList<GenotypeNode>();
-	/**
-	 * parents of this node (nodes that have and edge to this node)
-	 */
-	ArrayList<GenotypeNode> parents = new ArrayList<GenotypeNode>();
+	private long numberOfMutations = 0;
 	/**
 	 * unique id to be used for next node
 	 */
@@ -34,23 +27,10 @@ public class GenotypeNode implements Comparable<GenotypeNode> {
 	 * Observed probability extracted from dataset
 	 */
 	double probability = 0.;
-
 	/**
-	 * Probability at the steady state of this node
+	 * Probability at the 'steady state' of this node
 	 */
 	double steadyStateProbability = 0;
-
-	//TODO 
-	double emissionProbability = 0; 
-	int passFrequency = 0;
-	
-	/**
-	 * Getter for the adj list of this node
-	 * @return the adj list
-	 */
-	public ArrayList<GenotypeNode> getAdj(){
-		return this.adj;
-	}
 	
 	/**
 	 * Getter for the genotype of this node
@@ -61,51 +41,14 @@ public class GenotypeNode implements Comparable<GenotypeNode> {
 	}
 	
 	/**
-	 * updates the Id of this node to a new one
-	 * @param id
-	 */
-	public void setId(int id){
-		this.id = id;
-	}
-	
-	/**
 	 * Default constructor, creates a node labeled with a genotype
-	 * and with an empty 
 	 * @param genotype
-	 * @param id REQUIRE must be unique 
+	 * @param id REQUIRE must be unique in the context of usage
 	 */
 	public GenotypeNode(boolean[] genotype, int id){
 		this.genotype = genotype;
-		this.numberOfMutations = countMutations();
+		this.numberOfMutations = Utils.sumBool(genotype);
 		this.id = id;
-		assert (this.adj.size() == 0);
-	}
-	
-	/**
-	 * Default constructor, creates a node labeled with a genotype
-	 * and with an empty 
-	 * @param genotype
-	 * REQUIRE id must be set to be unique afterwards 
-	 */
-	public GenotypeNode(boolean[] genotype){
-		this.genotype = genotype;
-		this.numberOfMutations = countMutations();
-		this.id = -1;
-		assert (this.adj.size() == 0);
-	}
-	
-	/**
-	 * Counts the number of mutations that are present in the genotype
-	 * @return the number of mutations
-	 */
-	private long countMutations(){
-		long count = 0;
-		for(boolean mut : this.genotype){  /* count number of mutations */
-			if(mut){
-				count++;
-			}
-		}
-		return count;
 	}
 	
 	/**
@@ -126,40 +69,10 @@ public class GenotypeNode implements Comparable<GenotypeNode> {
 	}
 	
 	/**
-	 * Adds a node to the adjacency list of this node
-	 * NOTE: there is no control on the meaning of the values of the genotype (eg. to which gene they are associated with)
-	 * @param other a node REQUIRE not null, with compatible genotype
-	 */
-	public void add(GenotypeNode other){
-		assert (other != null);
-		assert (other.genotypeLength() == this.genotypeLength());  
-		this.adj.add(other);
-		other.addParent(this);
-	}
-	
-	/**
-	 * Adds a node to the parent list of this node
-	 * NOTE: there is no control on the meaning of the values of the genotype (eg. to which gene they are associated with)
-	 * @param other a node REQUIRE not null, with compatible genotype
-	 */
-	protected void addParent(GenotypeNode other){
-		assert (other != null);
-		assert (other.genotypeLength() == this.genotypeLength());  
-		this.parents.add(other);
-	}
-	
-	/**
 	 * @return the unique id of this node
 	 */
-	public long getId(){
+	public int getId(){
 		return this.id;
-	}
-	
-	/**
-	 * @return number of nodes that are reachable from this node by passing a single edge
-	 */
-	public long getNumberOfChildren(){
-		return this.adj.size();
 	}
 
 	@Override
@@ -214,31 +127,6 @@ public class GenotypeNode implements Comparable<GenotypeNode> {
 			}
 		}
 		return true;
-	}
-
-	/**
-	 * Linear search among parents to find which one has parId id 
-	 * @param  parId id to find
-	 * @return position of parent in the adj list of this (-1 if not found)
-	 */
-	public int findParentFromId(int parId) {
-		for( int i = 0; i<this.parents.size() ;i++){
-			if(this.parents.get(i).id==parId) return i;
-		}
-		assert(false): "Parent with id " + parId + " not found in node " + this.id;
-		return -1;
-	}
-
-	public int findChildFromId(int childID) {
-		for( int i = 0; i<this.adj.size() ;i++){
-			if(this.adj.get(i).id==childID) return i;
-		}
-		assert(false): "Child with id " + childID + " not found in node " + this.id;
-		return -1;
-	}
-
-	public int getNumberOfParents() {
-		return this.parents.size();
 	}
 	
 }

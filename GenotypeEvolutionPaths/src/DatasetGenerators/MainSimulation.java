@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import GenotypeGraph.GenotypeNode;
 import GenotypeGraph.WeightedGenotypeGraph;
+import GenotypeGraph.WeightedGenotypeGraph;
 
 public class MainSimulation {
 
@@ -21,23 +22,14 @@ public class MainSimulation {
 		boolean[] bd = {false,true,false, true};
 		boolean[] abd = {true,true,false, true};
 		
-		GenotypeNode nroot= new GenotypeNode(root);
-		GenotypeNode na   = new GenotypeNode(a);
-		GenotypeNode nb   = new GenotypeNode(b);
-		GenotypeNode nac  = new GenotypeNode(ac);
-		GenotypeNode nad  = new GenotypeNode(ad);
-		GenotypeNode nab  = new GenotypeNode(ab);
-		GenotypeNode nbd  = new GenotypeNode(bd);
-		GenotypeNode nabd = new GenotypeNode(abd);
-		
-		gen.add(nroot);
-		gen.add(na);
-		gen.add(nb);
-		gen.add(nac);
-		gen.add(nad);
-		gen.add(nab);
-		gen.add(nbd);
-		gen.add(nabd);
+		GenotypeNode nroot = gen.add(root);
+		GenotypeNode na    = gen.add(a);
+		GenotypeNode nb    = gen.add(b);
+		GenotypeNode nac   = gen.add(ac);
+		GenotypeNode nad   = gen.add(ad);
+		GenotypeNode nab   = gen.add(ab);
+		GenotypeNode nbd   = gen.add(bd);
+		GenotypeNode nabd  = gen.add(abd);
 		
 		gen.link(nroot, nroot, 0.9);
 		gen.link(nroot, nb, 0.05);
@@ -77,23 +69,14 @@ public class MainSimulation {
 		boolean[] bd = {false,true,false, true};
 		boolean[] abd = {true,true,false, true};
 		
-		GenotypeNode nroot= new GenotypeNode(root);
-		GenotypeNode na   = new GenotypeNode(a);
-		GenotypeNode nb   = new GenotypeNode(b);
-		GenotypeNode nac  = new GenotypeNode(ac);
-		GenotypeNode nad  = new GenotypeNode(ad);
-		GenotypeNode nab  = new GenotypeNode(ab);
-		GenotypeNode nbd  = new GenotypeNode(bd);
-		GenotypeNode nabd = new GenotypeNode(abd);
-		
-		gen.add(nroot);
-		gen.add(na);
-		gen.add(nb);
-		gen.add(nac);
-		gen.add(nad);
-		gen.add(nab);
-		gen.add(nbd);
-		gen.add(nabd);
+		GenotypeNode nroot = gen.add(root);
+		GenotypeNode na    = gen.add(a);
+		GenotypeNode nb    = gen.add(b);
+		GenotypeNode nac   = gen.add(ac);
+		GenotypeNode nad   = gen.add(ad);
+		GenotypeNode nab   = gen.add(ab);
+		GenotypeNode nbd   = gen.add(bd);
+		GenotypeNode nabd  = gen.add(abd);
 		
 		gen.link(nroot, nroot, 0.9);
 		gen.link(nroot, nb, 0.05);
@@ -136,17 +119,19 @@ public class MainSimulation {
 	
 	public static void main(String[] args) {
 		
+		
+		
 		//GraphDatasetGenerator gen = createGraphDatasetGeneratorWithEqualSelfLoopProbability();
-		GraphDatasetGenerator gen = new GraphDatasetGenerator(6);
+		GraphDatasetGenerator gen = new GraphDatasetGenerator(13);
 		System.out.println("Simulation graph: ");
 		gen.toDot();
 		
 		String[] labels = gen.getLabels();
 		 
-		WeightedGenotypeGraph sstate = new WeightedGenotypeGraph(labels, simulate(gen, 10000, 1000));
+		WeightedGenotypeGraph sstate = new WeightedGenotypeGraph(labels, simulate(gen, 1000000, 100));
 		ArrayList<boolean[]> D = new ArrayList<boolean[]>();
-		for(int i=1; i<20; i++){ /* modify here to set up data set */
-			D.addAll(simulate(gen, 1000000, 6));
+		for(int i=1; i<=1; i++){ /* modify here to set up data set */
+			D.addAll(simulate(gen, 1000000, 20));
 		}
 		WeightedGenotypeGraph grp = new WeightedGenotypeGraph(labels, D);
 		System.out.println("Generated DAG: ");

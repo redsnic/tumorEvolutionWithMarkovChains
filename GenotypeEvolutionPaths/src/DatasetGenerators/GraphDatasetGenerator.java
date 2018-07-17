@@ -3,6 +3,7 @@ package DatasetGenerators;
 import java.util.ArrayList;
 
 import GenotypeGraph.GenotypeNode;
+import GenotypeGraph.SquareMatrix;
 import Utils.Utils;
 
 /**
@@ -15,11 +16,18 @@ import Utils.Utils;
  */
 public class GraphDatasetGenerator {
 	
+	int[] nParents;
+	int[] nChildren;
+	
 	ArrayList<GenotypeNode> V = new ArrayList<GenotypeNode>();
 	/**
 	 * Weights are managed in a matrix
 	 */
-	ArrayList<ArrayList<Double>> W = new ArrayList<ArrayList<Double>>();
+	SquareMatrix<Double> W = new SquareMatrix<Double>(0.);
+	/**
+	 * adj matrix
+	 */
+	SquareMatrix<Boolean> E = new SquareMatrix<Boolean>(false);
 	/**
 	 * unique id for the next node to be added
 	 */
@@ -42,6 +50,22 @@ public class GraphDatasetGenerator {
 	}
 	
 	/**
+	 * Adds shortcuts to reduce computations of the number 
+	 * of parents and children of any node
+	 */
+	private void computeSumTables() {
+		nParents = new int[E.getSize()];
+		nChildren = new int[E.getSize()];
+		for(int i=0; i<E.getSize(); i++){
+			for(int j=0; j<E.getSize(); j++){
+				int found = E.get(i,j)?1:0;
+				nParents[j] += found;
+				nChildren[i] += found;
+			}
+		}
+	}
+	
+	/**
 	 * Default constructor (empty graph)
 	 */
 	public GraphDatasetGenerator(String[] labels){	
@@ -61,9 +85,7 @@ public class GraphDatasetGenerator {
 		}
 		
 		boolean[] root = new boolean[n];
-		GenotypeNode nroot = new GenotypeNode(root);
-		this.add(nroot);
-		this.setRoot(nroot);
+		this.setRoot(this.add(root));
 		
 		ArrayList<Integer> mutcounts = new ArrayList<Integer>();
 		mutcounts.add(0);
@@ -71,31 +93,35 @@ public class GraphDatasetGenerator {
 		for(long i=1 ; i<Math.pow(2, this.geneLabelsOrder.length); i++){
 			boolean[] genotype = Utils.binaryToBoolArray(i, geneLabelsOrder.length);
 			int totals = Utils.sumBool(genotype);
-			double selector = Math.random();
+			double selector = Utils.random();
 			
 			if(selector < 1/(double)totals){
-				this.add(new GenotypeNode(genotype));
+				this.add(genotype);
 				mutcounts.add(totals);
 			}
 		}
 		
 		for(GenotypeNode node : V){
-			link(node,node,Math.random());
+			link(node,node,Utils.random());
 		}
 		
 		for(GenotypeNode a : V){
 			for(GenotypeNode b : V){
 				if(mutcounts.get((int) a.getId())+1==mutcounts.get((int) b.getId()) && Utils.singleMismatch(a.getGenotype(), b.getGenotype())){
-					link(a,b,Math.random());
+					link(a,b,Utils.random());
 				}
 			}
 		}
 		
+		computeSumTables();
+		
 		for(GenotypeNode a : V){
-			if(a.getNumberOfParents()==1 && a != this.root){
-				link(this.root,a, Math.random());
+			if(nParents[a.getId()]==1 && a != this.root){
+				link(this.root,a, Utils.random());
 			}
 		}
+		
+		computeSumTables();
 
 	}
 	
@@ -104,17 +130,13 @@ public class GraphDatasetGenerator {
 	 * it also manages the modification of the adj matrix
 	 * @param n node to be added
 	 */
-	public void add(GenotypeNode n){
-		V.add(n);
-		n.setId(id);
-		W.add(new ArrayList<Double>());
-		for(int i = 0; i<id; i++){
-			W.get(id).add(0.);
-		}
-		for(int i = 0; i<=id; i++){
-			W.get(i).add(0.);
-		}
-		id++;
+	public GenotypeNode add(boolean[] n){
+		GenotypeNode newNode = new GenotypeNode(n, this.id);
+		V.add(newNode);
+		this.id++;
+		E.enlarge();
+		W.enlarge();
+		return newNode;
 	}
 	
 	/**
@@ -124,18 +146,8 @@ public class GraphDatasetGenerator {
 	 * @param weight of the edge
 	 */
 	public void link(GenotypeNode a, GenotypeNode b, double weight){
-		a.add(b);
-		W.get((int) a.getId()).set((int) b.getId(), weight);
-	}
-	
-	/**
-	 * Shortcut to get the weight of the edge from a to b
-	 * @param a
-	 * @param b
-	 * @return the weight of the edge from a to b
-	 */
-	private double getWeight(GenotypeNode a, GenotypeNode b){
-		return W.get((int) a.getId()).get((int) b.getId());
+		E.set(a.getId(), b.getId(), true);
+		W.set(a.getId(), b.getId(), weight);
 	}
 	
 	/**
@@ -143,7 +155,7 @@ public class GraphDatasetGenerator {
 	 * @return the sum of the weights of the outcoming edges of node a 
 	 */
 	private double totalWeight(GenotypeNode a){
-		return Utils.sumDouble(W.get((int) a.getId()));
+		return Utils.sumDoubleRow(W, a.getId());
 	}
 	
 	/**
@@ -164,13 +176,14 @@ public class GraphDatasetGenerator {
 		assert(root!=null);
 		GenotypeNode position = this.root;
 		for(int i=0; i<limit; i++){
-			double chooseRoute = Math.random()*totalWeight(position);
-			for(GenotypeNode next : position.getAdj()){
-				if(chooseRoute < getWeight(position, next)){
-					position = next;
+			double chooseRoute = Utils.random()*totalWeight(position);
+			for(int j=0; j<E.getSize(); j++){
+				if(!E.get(position.getId(), j)) continue;
+				if(chooseRoute < W.get(position.getId(), j)){
+					position = V.get(j);
 					break;
 				} else {
-					chooseRoute-=getWeight(position, next);
+					chooseRoute-=W.get(position.getId(), j);
 				}
 			}
 		}
@@ -195,11 +208,17 @@ public class GraphDatasetGenerator {
 	private void toDotNode(GenotypeNode node) {
 		System.out.println(node.getId() + " [label=\"" + this.nodeLabel(node) + "\"]");
 		double norm = 0.;
-		for(GenotypeNode child : node.getAdj() ){
-			norm+=this.getWeight(node, child);
+		for(int j=0; j<E.getSize(); j++){
+			if(!E.get(node.getId(), j)) continue;
+			norm+=this.W.get(node.getId(), j);
 		}
-		for(GenotypeNode child : node.getAdj() ){
-			System.out.println(node.getId() + " -> " + child.getId() + " [label=\"" +  String.format("%.3f", (this.getWeight(node, child)/norm)/(1-(this.getWeight(node, node)/norm))) + "\"]");
+		for(int j=0; j<E.getSize(); j++){
+			if(!E.get(node.getId(), j)) continue;
+			if(node.getId() != j){
+				System.out.println(node.getId() + " -> " + j + " [label=\"" +  String.format("%.3f", (this.W.get(node.getId(), j)/norm)/(1-(this.W.get(node.getId(), node.getId())/norm))) + "\"]");
+			} else {
+				System.out.println(node.getId() + " -> " + j + " [label=\"" +  String.format("%.3f", (this.W.get(node.getId(), j)/norm)) + "\"]");
+			}
 		}
 	}
 	

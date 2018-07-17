@@ -8,18 +8,23 @@ import Utils.Triplet;
 import Utils.Utils;
 
 /**
- * Base class to represent directed graphs about genotypes
- * It also implements a basic dot format output 
- * The implementation is with adjacency lists
+ * Basic class to represent directed graphs about genotypes.
+ * 
+ * It also provides a basic dot format output 
+ * The implementation is with adjacency matrix
  * @author rossi
  */
 public class GenotypeGraph {
 
 	String[] geneLabelsOrder;
-	ArrayList<GenotypeNode> nodes = new ArrayList<GenotypeNode>();
-	int id = 0; // unique id for nodes
+	ArrayList<GenotypeNode> V = new ArrayList<GenotypeNode>();
+	SquareMatrix<Boolean> E = new SquareMatrix<Boolean>(false);
+	protected int id = 0; // unique id for nodes
 	private int threshold = 0; /* 0 = no threshold on the number of genes */
 	
+	/**
+	 * @return the labels associated to genes 
+	 */
 	public String[] getLabels(){
 		return this.geneLabelsOrder;
 	}
@@ -111,7 +116,7 @@ public class GenotypeGraph {
 	 */
 	private void reduceGenes(boolean[] toBeKept, ArrayList<boolean[]> tempSamples) {
 		String[] newOrder = new String[(int) Utils.sumBool(toBeKept)];
-		boolean[][] oldSamples = toBoolMatrix(tempSamples);
+		boolean[][] oldSamples = Utils.toBoolMatrix(tempSamples);
 		boolean[][] newSamples = new boolean[oldSamples.length][(int) Utils.sumBool(toBeKept)];
 		int j=0;
 		for(int i=0; i<toBeKept.length; i++){
@@ -127,26 +132,19 @@ public class GenotypeGraph {
 		this.geneLabelsOrder = newOrder;
 		for(boolean[] g : newSamples){
 			if(Utils.sumBool(g) > 0){ // exclude tumoral genotypes without observed mutations
-				nodes.add(new GenotypeNode(g, this.id));
+				V.add(new GenotypeNode(g, this.id));
 				this.id++;
 			}
 		}
-		
 	}
-
+	
 	/**
-	 * Casts an ArrayList<boolean[]> to a boolean[][] 
-	 * @param  list (of arrays)
-	 * @return a matrix
+	 * Initialize adj Matrix (note, use after genotype compression!)
 	 */
-	private boolean[][] toBoolMatrix(ArrayList<boolean[]> list) {
-		boolean[][] matrix = new boolean[list.size()][list.get(0).length];
-		for(int i=0; i<matrix.length ;i++){
-			for(int j=0; j<matrix[i].length; j++){
-				matrix[i][j] = list.get(i)[j];
-			}
+	void setupAdjMatrix(){
+		for(int i=0; i<V.size(); i++){
+			E.enlarge();
 		}
-		return matrix;
 	}
 
 	/**
@@ -157,7 +155,7 @@ public class GenotypeGraph {
 	private boolean[] computeElimiations(ArrayList<Integer> geneMutations) {
 		ArrayList<Triplet<String,Integer,Integer>> geneInformation = new ArrayList<Triplet<String,Integer,Integer>>();
 		for(int i = 0; i<geneMutations.size(); i++){
-			/* (HUGO symbol, #mutations, original position */ 
+			/* (HUGO symbol, #mutations, original position) */ 
 			Triplet<String,Integer,Integer> temp = new Triplet<String,Integer,Integer>(this.geneLabelsOrder[i], geneMutations.get(i), i);
 			geneInformation.add(temp);
 		}
@@ -176,14 +174,13 @@ public class GenotypeGraph {
 		for(; i<geneInformation.size() && lastNumberOfMutations==geneInformation.get(i).snd() ; i++){ 
 			res[geneInformation.get(i).thr()]=true;
 		}
-		
 		return res;
 	}
 	
 	/**
 	 * Computes the array of the counts for each mutation
 	 * (i.e. how many times every mutation was seen in any sample)
-	 * @param  tempSamples input dataset
+	 * @param  tempSamples input data set
 	 * @return array of the counts for each mutation
 	 */
 	private ArrayList<Integer> computeGeneMutations(ArrayList<boolean[]> tempSamples) {
@@ -209,7 +206,7 @@ public class GenotypeGraph {
 	 * @return the number of nodes of the graph
 	 */
 	public long size(){
-		return nodes.size();
+		return V.size();
 	}
 	
 	/**
@@ -217,21 +214,32 @@ public class GenotypeGraph {
 	 */
 	public void toDot(){
 		System.out.println("digraph G{");
-		for(GenotypeNode n : nodes){
+		for(GenotypeNode n : V){
 			this.toDotNode(n);
 		}
+		this.toDotEdges();
 		System.out.println("}");
 	}
 	
+	/**
+	 * Prints all the edges of this graph in dot format
+	 */
+	void toDotEdges() {
+		for(int i=0; i<E.getSize(); i++){
+			for(int j=0; j<E.getSize(); j++){
+				if(E.get(i, j)){
+					System.out.println(i + " -> " + j);
+				}
+			}
+		}
+	}
+
 	/**
 	 * prints a node in dot format
 	 * @param node the node to be printed REQUIRE not null
 	 */
 	public void toDotNode(GenotypeNode node){
 		System.out.println(node.getId() + " [label=\"" + this.nodeLabel(node) + "\"]");
-		for(GenotypeNode child : node.adj ){
-			System.out.println(node.getId() + " -> " + child.getId());
-		}
 	}
 	
 	/**
@@ -241,8 +249,8 @@ public class GenotypeGraph {
 	 */
 	public String nodeLabel(GenotypeNode node){
 		ArrayList<String> res = new ArrayList<String>();
-		for(int i = 0; i<node.genotype.length; i++){
-			if(node.genotype[i]){
+		for(int i = 0; i<node.getGenotype().length; i++){
+			if(node.getGenotype()[i]){
 				res.add(this.geneLabelsOrder[i]);
 			}
 		}
@@ -252,18 +260,5 @@ public class GenotypeGraph {
 			return "clonal";
 		}
 	}
-	
-	/**
-	 * updates the node set to a new one
-	 * (also dot IDs are recomputed)
-	 * @param newNodes new node set 
-	 */
-	protected void setNodes(ArrayList<GenotypeNode> newNodes){
-		this.nodes = newNodes;
-		for(int i = 0; i<this.nodes.size() ;i++){
-			this.nodes.get(i).setId(i);
-		}
-	}
-
 	
 }

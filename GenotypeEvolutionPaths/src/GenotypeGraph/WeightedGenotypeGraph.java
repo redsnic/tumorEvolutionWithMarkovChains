@@ -2,8 +2,6 @@ package GenotypeGraph;
 
 import java.util.ArrayList;
 
-import javax.xml.ws.soap.Addressing;
-
 import MarkovChains.MarkovChain;
 import Utils.Utils;
 
@@ -11,9 +9,9 @@ import Utils.Utils;
  * A very simple method to add transition probabilities to a genotype graph 
  * @author rossi
  * (Actually this is also a Markov Chain, TODO toMC() method)
- * INVARIANT: the sum of the weight of each edge outcoming from any node is 1
+ * INVARIANT: the sum of the weight of each edge out-coming from any node is 1
  *            the graph is a DAG
- *            there is only a node with no parents and this node is labelled with the 'clonal' genotype 
+ *            there is only a node with no parents and this node is labeled with the 'clonal' genotype 
  *            edges are set from node a to b if and only if : 
  *                  a.genotype.length + 1 = b.genotype.length and
  *                  exists a mutation x so that a.genotype = b.genotype\{x}  
@@ -23,18 +21,21 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 	/**
 	 * sum of weights of reachable nodes using direct edges
 	 */
-	ArrayList<ArrayList<Double>> upWeights;   
+	SquareMatrix<Double> upWeights = new SquareMatrix<Double>(0.);   
 	/**
 	 * sum of weights of reachable nodes using reverse edges
 	 */
-	ArrayList<ArrayList<Double>> downWeights;
+	SquareMatrix<Double> downWeights = new SquareMatrix<Double>(0.);
 	/**
-	 * weight computed using this formula:
+	 * final weights computed with this formula:
 	 * W(<a,b>) = [Wdown(<a,b>)*(Wup(<a,b>)/Wup(b))]/[sum_{x \in a.Adj}Wdown(<a,x>)*(Wup(<a,x>)/Wup(x)]
 	 */
-	ArrayList<ArrayList<Double>> finalWeights;
+	SquareMatrix<Double> W = new SquareMatrix<Double>(0.);
 	
-	GenotypeNode root = null;
+	int[] nParents;
+	int[] nChildren;
+	
+	GenotypeNode root = null; // TODO int
 	
 	/**
 	 * Default constructor, enriches the simple genotype graph with weights 
@@ -88,26 +89,48 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 		setObservedProbabilities();  
 		
 		/* add clonal genotype */
+		computeSumTables();
 		addRoot();
+		computeSumTables();
 		
-		/* init */
-		upWeights = setAtNull();
-		downWeights = setAtNull();
-		finalWeights = setAtNull();
+		initWeights();
 		
 		/* Weight computation */
 		setUpWeights();	
-		//setDownWeights();
 		setDownWeightsSplitted();
 		setFinalWeights();
-		
-		/* compute emission probabilities for each node */ 
-		computeEmissionProbability();
 		
 		/* compute steady state */
 		computeSteadyState();
 	}
 	
+	/**
+	 * Initialization of weight matrices
+	 */
+	private void initWeights() {
+		for(int i=0; i<E.getSize(); i++){
+			upWeights.enlarge();
+			downWeights.enlarge();
+			W.enlarge();
+		}
+	}
+
+	/**
+	 * Adds shortcuts to reduce computations of the number 
+	 * of parents and children of any node
+	 */
+	private void computeSumTables() {
+		nParents = new int[E.getSize()];
+		nChildren = new int[E.getSize()];
+		for(int i=0; i<E.getSize(); i++){
+			for(int j=0; j<E.getSize(); j++){
+				int found = E.get(i,j)?1:0;
+				nParents[j] += found;
+				nChildren[i] += found;
+			}
+		}
+	}
+
 	/**
 	 * Set up weights using this formula:
 	 * W(<a,b>) = [Wdown(<a,b>)*(Wup(<a,b>)/Wup(b))]/[sum_{x \in a.Adj}Wdown(<a,x>)*(Wup(<a,x>)/Wup(x)]
@@ -115,19 +138,17 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 	 */
 	private void setFinalWeights() {
 		/* compute [Wdown(<a,b>)*(Wup(<a,b>)/Wup(b))] */
-		for(int i = 0; i<nodes.size(); i++){
-			ArrayList<Double> temp = new ArrayList<Double>();
-			for(int j = 0; j<nodes.get(i).adj.size(); j++){ 
-				/* TODO check if access to a from b can be improved avoiding a linear search on b's parent */
-				temp.add(downWeights.get(i).get(j)*(upWeights.get(nodes.get(i).adj.get(j).id).get(nodes.get(i).adj.get(j).findParentFromId(i))/Utils.sumDouble(upWeights.get(nodes.get(i).adj.get(j).id))));
+		for(int i = 0; i<V.size(); i++){
+			for(int j = 0; j<E.getSize(); j++){
+				if(E.get(i, j) == false) continue;
+				W.set(i, j, downWeights.get(i, j)*(upWeights.get(i, j)/Utils.sumDoubleCol(upWeights, j)));
 			}
-			finalWeights.set(i, temp);
 		}
 		/* normalize by [sum_{x \in a.Adj}Wdown(<a,x>)*(Wup(<a,x>)/Wup(x)] */
-		for(int i = 0; i<finalWeights.size(); i++){
-			Double normFactor = Utils.sumDouble(finalWeights.get(i));
-			for(int j = 0; j<finalWeights.get(i).size(); j++){
-				finalWeights.get(i).set(j, finalWeights.get(i).get(j)/normFactor );
+		for(int i = 0; i<W.getSize(); i++){
+			Double normFactor = Utils.sumDoubleRow(W, i);
+			for(int j = 0; j<W.getSize(); j++){
+				W.set(i, j, W.get(i, j)/normFactor);
 			}
 		}
 	}
@@ -136,14 +157,16 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 	 * Adds the clonal genotype with edges to each node without any parent as root of the graph
 	 */
 	private void addRoot() {
-		GenotypeNode root = new GenotypeNode(new boolean[this.geneLabelsOrder.length] , this.nodes.size());
-		for(GenotypeNode n : this.nodes){ 
-			if(n.parents.size()==0){
-				root.add(n);
+		GenotypeNode root = new GenotypeNode(new boolean[this.geneLabelsOrder.length] , this.id);
+		this.id++;
+		E.enlarge();
+		for(GenotypeNode n : this.V){ 
+			if(nParents[n.id]==0){
+				E.set(root.id, n.id, true);
 			}
 		}
 		root.probability = 1; /* TODO check if it is better to use 0 or 1 */
-		this.nodes.add(root);
+		this.V.add(root);
 		this.root = root;
 	}
 	
@@ -151,12 +174,12 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 	 * Use up weight information to split nodes and compute down weights
 	 */
 	private void setDownWeightsSplitted() {
-		double[] weightReachableFromNode = new double[this.nodes.size()];
-		int[] memoVisit = new int[this.nodes.size()];
+		double[] weightReachableFromNode = new double[this.V.size()];
+		int[] memoVisit = new int[this.V.size()];
 		/* start from all 'leaf' nodes (no children)*/
-		for( GenotypeNode node : this.nodes ){
+		for( GenotypeNode node : this.V ){
 			assert(node!=null);
-			if(node.adj.size() == 0){
+			if(nChildren[node.id]== 0){
 				setDownWeightsSplittedRec(node, weightReachableFromNode, memoVisit);
 			}
 		}
@@ -175,55 +198,20 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 		
 		weightReachableFromNode[node.id]+=node.probability;
 		
-		double norm = Utils.sumDouble(upWeights.get(node.id));
+		double norm = Utils.sumDoubleCol(upWeights, node.id);
 		
-		for(GenotypeNode parent : node.parents){
-			weightReachableFromNode[parent.id]+=(weightReachableFromNode[node.id]*upWeights.get(node.id).get(node.findParentFromId(parent.id)))/norm;
+		for(GenotypeNode parent : getParentsOf(node)){
+			weightReachableFromNode[parent.id]+=weightReachableFromNode[node.id]*upWeights.get(parent.id,node.id)/norm;
 			memoVisit[parent.id]++;
-			if(memoVisit[parent.id] == parent.adj.size()){
+			if(memoVisit[parent.id] == nChildren[parent.id]){
 				setDownWeightsSplittedRec(parent,weightReachableFromNode,memoVisit);
 			}
 		}
-				
-		ArrayList<Double> lineWeights = new ArrayList<Double>();
-		for(GenotypeNode child : node.adj){
-			lineWeights.add(weightReachableFromNode[child.id]);
+			
+		for(GenotypeNode child : getChildrenOf(node)){
+			downWeights.set(node.id, child.id, weightReachableFromNode[child.id]);
 		}
-		downWeights.set(node.id, lineWeights);
 
-	}
-
-	/**
-	 * DP procedure to efficiently compute the sum of
-	 * all the weights of nodes reachable (excluding itself) by any node 
-	 */
-	@SuppressWarnings("unused")
-	@Deprecated
-	private void setDownWeights() {
-		for( GenotypeNode node : this.nodes ){
-			assert(node!=null);
-			setDownWeightsRec(node);
-		}
-	}
-	
-	/**
-	 * DP procedure to efficiently compute the sum of
-	 * all the weights of nodes reachable by a specified node (excluding itself)  
-	 * @param node  starting point
-	 * @return      sum of weights of nodes reachable by node (including itself) 
-	 */
-	@Deprecated
-	private Double setDownWeightsRec(GenotypeNode node) {
-		assert(node!=null);
-		if(downWeights.get(node.id) != null) {
-			return Utils.sumDouble(downWeights.get(node.id)) + node.probability;  // Dynamic Programming
-		}
-		ArrayList<Double> lineWeights = new ArrayList<Double>();
-		for(int i = 0; i<node.adj.size(); i++){
-			lineWeights.add(setDownWeightsRec(node.adj.get(i)));
-		}
-		downWeights.set(node.id, lineWeights);
-		return Utils.sumDouble(lineWeights)+node.probability;
 	}
 
 	/**
@@ -232,32 +220,11 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 	 * following reverse edges
 	 */
 	private void setUpWeights() {
-		int[] memoVisit = new int[this.nodes.size()];
-		double[] memoValues = new double[this.nodes.size()];
+		int[] memoVisit = new int[this.V.size()];
+		double[] memoValues = new double[this.V.size()];
 		computeUpWeightsRec(this.root, memoVisit, memoValues);	
-		transposeUpWeights();
 	}
 	
-	/**
-	 * For compatibility reasons the information about upWeight should be 
-	 * stored referring to the child of some parents
-	 * TODO switch to adj matrix implementation 
-	 */
-	private void transposeUpWeights() {
-		
-		ArrayList<ArrayList<Double>> newupw = new ArrayList<ArrayList<Double>>();
-		for(int i=0; i<nodes.size(); i++){
-			newupw.add(new ArrayList<Double>() );
-		}
-		for(GenotypeNode n : this.nodes){
-			for(GenotypeNode par : n.parents){
-				double oldWeight = upWeights.get(par.id).get(par.findChildFromId(n.id));
-				newupw.get(n.id).add(oldWeight);
-			}
-		}
-		upWeights = newupw;
-	}
-
 	/**
 	 * Recursive procedure to compute for each node its upWeights
 	 * @param node          the node in analysis
@@ -266,90 +233,29 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 	 */
 	private void computeUpWeightsRec(GenotypeNode node, int[] memoVisit, double[] memoValues){
 		memoValues[node.id]+=node.probability;
-		ArrayList<Double> lineWeights = new ArrayList<Double>();
-		for(GenotypeNode child : node.adj){
-			memoValues[child.id]+=memoValues[node.id]/node.adj.size();
-			lineWeights.add(memoValues[node.id]/node.adj.size());
+		
+		ArrayList<GenotypeNode> adj = getChildrenOf(node);
+		
+		for(GenotypeNode child : adj){
+			memoValues[child.id]+=memoValues[node.id]/adj.size();
+			upWeights.set(node.id, child.id, memoValues[node.id]/adj.size());
 			memoVisit[child.id]++;
-			if(memoVisit[child.id]==child.parents.size()){
+			if(memoVisit[child.id]==nParents[child.id]){
 				computeUpWeightsRec(child, memoVisit, memoValues);
 			}
 		}
-		upWeights.set(node.id, lineWeights);
-	}
 	
-	/**
-	 * Computes for each node the number of path that can lead ant ancestor
-	 * to this node
-	 * @param node             node considered
-	 * @param anchestorMatrix  table to memorize the results for each node
-	 * @param memoVisit        table remembering the number of times a node was considered to control the visit
-	 */
-	@Deprecated
-	@SuppressWarnings(value = { "unused" }) 
-	private void prepareAncestorMatrix(GenotypeNode node, int[][] anchestorMatrix, int[] memoVisit) {
-		
-		for(GenotypeNode child : node.adj){
-			Utils.addToFrom(anchestorMatrix[child.id], anchestorMatrix[node.id]);
-			anchestorMatrix[child.id][node.id]++;
-			memoVisit[child.id]++;
-			if(memoVisit[child.id] == child.parents.size()){
-				prepareAncestorMatrix(child, anchestorMatrix, memoVisit);
-			}
-		}
 	}
-
-	/**
-	 * DP procedure to efficiently compute the sum of
-	 * all the weights of nodes reachable by a specified node (excluding itself) following reverse edges
-	 * @param node  starting point
-	 * @return      sum of weights of nodes reachable by node (including itself) following reverse edges
-	 * NOTE: it was considering certain paths multiple times
-	 */
-	@Deprecated
-	@SuppressWarnings(value = { "unused" }) 
-	private Double setUpWeightsRec(GenotypeNode node) {
-		assert(node!=null);
-		if(upWeights.get(node.id) != null){ 
-			return Utils.sumDouble(upWeights.get(node.id)) + node.probability;  // Dynamic Programming
-		}
-		ArrayList<Double> lineWeights = new ArrayList<Double>();
-		for(int i = 0; i<node.parents.size(); i++){
-			lineWeights.add(setUpWeightsRec(node.parents.get(i)));
-		}
-		upWeights.set(node.id, lineWeights);
-		
-		return Utils.sumDouble(lineWeights)+node.probability;
-		
-	}	
 	
 	/**
 	 * Sets observation probabilities up for each node
 	 * (P(genotype) = #count(genotype in dataset)/#sizeof(dataset))
-	 * Note: resets nodes IDs (needed for fast access to weights'lists)
 	 */
 	private void setObservedProbabilities() {
 		double normFactor = Utils.sumLong(counts);
-		for(int i = 0; i< this.nodes.size(); i++){
-			this.nodes.get(i).setId(i);  
-			this.nodes.get(i).probability = this.counts.get(i)/normFactor; 
+		for(int i = 0; i< this.V.size(); i++){  
+			this.V.get(i).probability = this.counts.get(i)/normFactor; 
 		}
-	}
-	
-	/**
-	 * Initialization for weight lists
-	 * (also used for the DP algorithms)
-	 * @return a list containing a null for each node 
-	 */
-	private ArrayList<ArrayList<Double>> setAtNull(){
-		ArrayList<ArrayList<Double>> weightList = new ArrayList<ArrayList<Double>>();
-		for( @SuppressWarnings("unused") GenotypeNode n : this.nodes ){
-			weightList.add(null); /* just add null */
-		}
-		for( GenotypeNode n : this.nodes ){
-			assert(weightList.get(n.id) == null);
-		}
-		return weightList;
 	}
 
 	 
@@ -357,12 +263,17 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 	@Override
 	public void toDotNode(GenotypeNode node){
 		System.out.println(node.getId() + " [label=\"<" + this.nodeLabel(node) + ", " + String.format("%.3f", node.probability) + ">\"]");
-		int j=0;
-		for(GenotypeNode child : node.adj ){
-			System.out.println(node.getId() + " -> " + child.getId() + " [label=\"" + String.format("%.3f", this.finalWeights.get(node.id).get(j)) +
-					"\nDown: "  + String.format("%.3f", this.downWeights.get(node.id).get(j)) + 
-					"\nUp: "  + String.format("%.3f", this.upWeights.get(child.id).get(child.findParentFromId(node.id))) +  "\"]");
-			j++;
+	}
+	
+	@Override
+	void toDotEdges(){
+		for(int i=0; i<E.getSize(); i++ ){
+			for(int j=0; j<E.getSize(); j++){
+				if(!(E.get(i, j))) continue;
+				System.out.println(i + " -> " + j + " [label=\"" + String.format("%.3f", this.W.get(i, j)) +
+						"\nDown: "  + String.format("%.3f", this.downWeights.get(i, j)) + 
+						"\nUp: "  + String.format("%.3f", this.upWeights.get(i,j)) +  "\"]");
+			}
 		}
 	}
 	
@@ -375,15 +286,15 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 		MarkovChain mc = new MarkovChain();
 		
 		ArrayList<GenotypeMarkovNode> gNodeList = new ArrayList<GenotypeMarkovNode>(); 
-		for(GenotypeNode n : this.nodes){
+		for(GenotypeNode n : this.V){
 			GenotypeMarkovNode newNode = new GenotypeMarkovNode(this.nodeLabel(n));
 			gNodeList.add(newNode);
 		}
 
-		for(int i = 0; i<this.nodes.size(); i++){
+		for(int i = 0; i<this.V.size(); i++){
 			int j=0;
-			for(GenotypeNode child: this.nodes.get(i).adj ){
-				gNodeList.get(i).add(gNodeList.get(child.id), finalWeights.get(i).get(j));
+			for(GenotypeNode child: getChildrenOf(this.V.get(i)) ){
+				gNodeList.get(i).add(gNodeList.get(child.id), W.get(i,j));
 				j++;
 			}
 		}
@@ -396,104 +307,12 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 	}
 	
 	/**
-	 * Simulates the graph to produce an artificial observed genotype
-	 * @return an artificial genotype
-	 * TODO
-	 */
-	public boolean[] generateData(){
-		GenotypeNode position = this.root;
-		return generateDataNext(position);
-	}
-
-	/**
-	 * TODO
-	 */
-	private void computeEmissionProbability() {
-		
-		int[] memoIn = new int[this.nodes.size()];
-		/* no emission probability for clonal genotype */
-		computeEmissionProbabilityRec(this.root, memoIn);
-		
-	}
-
-	/**
-	 * Computes the sum of the weights (observed probabilities) 
-	 * of the reachable nodes from position (maintaining "splitting" information) TODO
-	 * @param position the starting point of the visit
-	 * @param memoIn TODO
-	 * TODO check if efficiency can be improved
-	 */
-	private void computeEmissionProbabilityRec(GenotypeNode position, int[] memoIn) {
-		
-		double remaining = position.emissionProbability;
-		if(position == root){
-			remaining = 1;
-		}
-		
-		if(position.emissionProbability!=0){
-			position.emissionProbability = position.probability/remaining;
-		} else{
-			position.emissionProbability = 0;
-		}
-		
-		if(position.adj.size()==0){
-			position.emissionProbability=1;
-		}
-		
-		double remainingProbability = remaining*(1-position.emissionProbability);
-		
-		//TODO
-		for(int i=0; i<position.adj.size(); i++){
-			position.adj.get(i).emissionProbability += remainingProbability*finalWeights.get(position.id).get(i);
-			memoIn[position.adj.get(i).id]++;
-			if(memoIn[position.adj.get(i).id] == position.adj.get(i).parents.size()){
-				computeEmissionProbabilityRec(position.adj.get(i), memoIn);
-			}
-		}
-		
-	}
-
-	/**
-	 * recursive function for synthetic data generation 
-	 * @param position last node reached in the visit
-	 * @return an artificial genotype
-	 * TODO
-	 */
-	private boolean[] generateDataNext(GenotypeNode position) {
-		position.passFrequency++;
-		
-		double chooseRoute = Math.random();
-		
-		double stop = Math.random();
-		if(stop < (position.emissionProbability)){
-			return position.genotype; 
-		}
-		
-		//if(position.adj.size() == 0) {
-		//	return position.genotype;
-		//}
-		
-		int i=0;
-		for(GenotypeNode next : position.adj){
-			if(finalWeights.get(position.id).get(i)>chooseRoute){
-				/* TODO normalize output probability using down weights */
-				return generateDataNext(next);
-			} else {
-				chooseRoute -= finalWeights.get(position.id).get(i);
-				i++;
-			}
-		}
-		//assert(false); // unreachable
-		return new boolean[position.genotype.length];
-	}
-	
-	/**
 	 * computes the steady state of this graph seen 
 	 * as a Markov Chain
 	 * NOTE: this graph is a DAG with a single 'root'
 	 */
 	private void computeSteadyState(){
-		int[] memoIn = new int[this.nodes.size()];
+		int[] memoIn = new int[this.V.size()];
 		this.root.steadyStateProbability = 1.; /* starting situation */
 		computeSteadyStateRec(this.root, memoIn);
 	}
@@ -504,19 +323,18 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 	 * @param memoIn   table having for each node the number of edges yet considered in the computation
 	 */
 	private void computeSteadyStateRec(GenotypeNode position, int[] memoIn) {
-		
-		if(position.adj.size()>0){
-			for(int i=0; i<position.adj.size(); i++){
-				position.adj.get(i).steadyStateProbability += (position.steadyStateProbability)*finalWeights.get(position.id).get(i);
-				memoIn[position.adj.get(i).id]++;
-				if(memoIn[position.adj.get(i).id] == position.adj.get(i).parents.size()){ 
+		ArrayList<GenotypeNode> adj = getChildrenOf(position); 
+		if(adj.size()>0){
+			for(GenotypeNode child : adj){
+				child.steadyStateProbability += (position.steadyStateProbability)*W.get(position.id, child.id);
+				memoIn[child.id]++;
+				if(memoIn[child.id] == nParents[child.id]){ 
 					/* when all edges entering in a node are considered recurr in that node */
-					computeSteadyStateRec(position.adj.get(i), memoIn);
+					computeSteadyStateRec(child, memoIn);
 				}
 			}
 			position.steadyStateProbability = 0;
 		}
-		
 	}
 	
 	/**
@@ -525,7 +343,7 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 	 */
 	public void printSteadyState(){
 		System.out.println("Steady state: ");
-		for(GenotypeNode node:nodes){
+		for(GenotypeNode node:V){
 			if(node.steadyStateProbability>0){
 				System.out.println(this.nodeLabel(node) + " " + node.steadyStateProbability);
 			}

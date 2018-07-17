@@ -1,8 +1,14 @@
 package Utils;
 
 import java.util.ArrayList;
+import java.util.Random;
+
+import GenotypeGraph.SquareMatrix;
 
 public class Utils {
+	
+	public static Random rnd = new Random(System.currentTimeMillis());
+	
 	/**
 	 * @param   arr 
 	 * @return  sum of all arr's elements
@@ -90,9 +96,6 @@ public class Utils {
 		
 	}
 
-	
-	
-	
 	/**
 	 * bs |= bs2; for vectors of boolean
 	 * @param bs  Modified with or  
@@ -105,12 +108,65 @@ public class Utils {
 		}
 	}
 
+	/**
+	 * is += is2
+	 * @param is
+	 * @param is2
+	 */
 	public static void addToFrom(int[] is, int[] is2) {
 		assert(is.length == is2.length);
 		for(int i=0; i<is.length; i++){
 			is[i] += is2[i]; 
 		}
-		
+	}
+	
+	/**
+	 * Creates a random number according to the random seed set in this class
+	 * @return a pseudo-random number between 0 and 1
+	 */
+	public static double random(){
+		return rnd.nextDouble();
+	}
+	
+	/**
+	 * Casts an ArrayList<boolean[]> to a boolean[][] 
+	 * @param  list (of arrays)
+	 * @return a matrix
+	 */
+	public static boolean[][] toBoolMatrix(ArrayList<boolean[]> list) {
+		boolean[][] matrix = new boolean[list.size()][list.get(0).length];
+		for(int i=0; i<matrix.length ;i++){
+			for(int j=0; j<matrix[i].length; j++){
+				matrix[i][j] = list.get(i)[j];
+			}
+		}
+		return matrix;
+	}
+
+	/**
+	 * @param matrix
+	 * @param row
+	 * @return sum of all elements on row of matrix
+	 */
+	public static Double sumDoubleRow(SquareMatrix<Double> matrix, int row) {
+		Double ans = 0.;
+		for(int col=0; col<matrix.getSize(); col++){
+			ans+=matrix.get(row,col);
+		}
+		return ans;
+	}
+	
+	/**
+	 * @param matrix
+	 * @param col
+	 * @return sum of all elements on row of matrix
+	 */
+	public static Double sumDoubleCol(SquareMatrix<Double> matrix, int col) {
+		Double ans = 0.;
+		for(int row=0; row<matrix.getSize(); row++){
+			ans+=matrix.get(row,col);
+		}
+		return ans;
 	}
 	
 }

@@ -52,8 +52,9 @@ public class GenotypeGraphSimple extends GenotypeGraph{
 	
 	@Override 
 	protected void prepareEdges(){
-		Collections.sort(this.nodes);
+		Collections.sort(this.V);
 		countAndCompress();
+		setupAdjMatrix();
 		linkNodes(); 
 	}
 	
@@ -71,10 +72,10 @@ public class GenotypeGraphSimple extends GenotypeGraph{
 		}
 			
 		long count = 1;        /* count nodes */
-		compressed.add(this.nodes.get(0));
+		compressed.add(this.V.get(0));
 		for(int i = 1; i<this.size() ;i++){
-			if(compressed.get(compressed.size()-1).compareTo(this.nodes.get(i)) != 0){
-				compressed.add(this.nodes.get(i));
+			if(compressed.get(compressed.size()-1).compareTo(this.V.get(i)) != 0){
+				compressed.add(this.V.get(i));
 				this.counts.add(count);
 				count=1;
 			} else {
@@ -82,9 +83,9 @@ public class GenotypeGraphSimple extends GenotypeGraph{
 			}
 		}
 		
+		this.V = compressed;
 		this.counts.add(count);
-		this.setNodes(compressed);
-		
+		this.reset();
 	}
 	
 	/**
@@ -93,14 +94,58 @@ public class GenotypeGraphSimple extends GenotypeGraph{
 	 */
 	protected void linkNodes(){
 		/* for each node check the following nodes and add an edge to each other compatible node */
-		for(int i = 0; i<this.nodes.size() ; i++){
-			for (int j = i+1; j<this.nodes.size() && this.nodes.get(i).getNumberOfMutations()+2 > this.nodes.get(j).getNumberOfMutations() ; j++) {
-				if( this.nodes.get(j).contains(this.nodes.get(i))){
-					this.nodes.get(i).add(this.nodes.get(j));
+		for(int i = 0; i<this.V.size() ; i++){
+			for (int j = i+1; j<this.V.size() && this.V.get(i).getNumberOfMutations()+2 > this.V.get(j).getNumberOfMutations() ; j++) {
+				if( this.V.get(j).contains(this.V.get(i))){
+					E.set(i, j, true);
 				}
 			}
 		}
 	}
+	
+	/**
+	 * Resets node IDs and adjacency matrix
+	 */
+	private void reset(){
+		this.id = 0;
+		for(GenotypeNode n : V){
+			n.id = this.id;
+			this.id++;
+		}
+		this.E = new SquareMatrix<Boolean>(false);
+		for(int i=0; i<V.size(); i++){
+			E.enlarge();
+		}
+	}
+	
+	/**
+	 * @param n  a node of the graph
+	 * @return   the list of the parents of n
+	 */
+	ArrayList<GenotypeNode> getParentsOf(GenotypeNode n){
+		ArrayList<GenotypeNode>  pList = new ArrayList<GenotypeNode>();
+		for(int i=0; i<E.getSize(); i++){
+			if(E.get(i, n.id)){
+				pList.add(V.get(i));
+			}
+		}
+		return pList;
+	}
+	
+	/**
+	 * @param n  a node of the graph
+	 * @return   the list of the children of n
+	 */
+	ArrayList<GenotypeNode> getChildrenOf(GenotypeNode n){
+		ArrayList<GenotypeNode>  cList = new ArrayList<GenotypeNode>();
+		for(int j=0; j<E.getSize(); j++){
+			if(E.get(n.id, j)){
+				cList.add(V.get(j));
+			}
+		}
+		return cList;
+	}
+	
 	
 	
 
