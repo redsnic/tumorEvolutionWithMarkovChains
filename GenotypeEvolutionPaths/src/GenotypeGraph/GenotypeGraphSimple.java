@@ -96,7 +96,7 @@ public class GenotypeGraphSimple extends GenotypeGraph{
 		/* for each node check the following nodes and add an edge to each other compatible node */
 		for(int i = 0; i<this.V.size() ; i++){
 			for (int j = i+1; j<this.V.size() && this.V.get(i).getNumberOfMutations()+2 > this.V.get(j).getNumberOfMutations() ; j++) {
-				if( this.V.get(j).contains(this.V.get(i))){
+				if( this.V.get(j).containsAndOnlyOneMore(this.V.get(i))){
 					E.set(i, j, true);
 				}
 			}

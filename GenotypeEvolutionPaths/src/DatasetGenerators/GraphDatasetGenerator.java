@@ -53,7 +53,7 @@ public class GraphDatasetGenerator {
 	 * Adds shortcuts to reduce computations of the number 
 	 * of parents and children of any node
 	 */
-	private void computeSumTables() {
+	protected void computeSumTables() {
 		nParents = new int[E.getSize()];
 		nChildren = new int[E.getSize()];
 		for(int i=0; i<E.getSize(); i++){
@@ -87,9 +87,6 @@ public class GraphDatasetGenerator {
 		boolean[] root = new boolean[n];
 		this.setRoot(this.add(root));
 		
-		ArrayList<Integer> mutcounts = new ArrayList<Integer>();
-		mutcounts.add(0);
-		
 		for(long i=1 ; i<Math.pow(2, this.geneLabelsOrder.length); i++){
 			boolean[] genotype = Utils.binaryToBoolArray(i, geneLabelsOrder.length);
 			int totals = Utils.sumBool(genotype);
@@ -97,17 +94,26 @@ public class GraphDatasetGenerator {
 			
 			if(selector < 1/(double)totals){
 				this.add(genotype);
-				mutcounts.add(totals);
 			}
 		}
+		  
+		prepareLinks();
 		
-		for(GenotypeNode node : V){
-			link(node,node,Utils.random());
-		}
+		computeSumTables();
+
+	}
+	
+	/**
+	 * Adds edges to dataset generator graph
+	 */
+	protected void prepareLinks() {
+		
+		prepareSelfLoops();
 		
 		for(GenotypeNode a : V){
+			/* link all other nodes with an additional mutation */
 			for(GenotypeNode b : V){
-				if(mutcounts.get((int) a.getId())+1==mutcounts.get((int) b.getId()) && Utils.singleMismatch(a.getGenotype(), b.getGenotype())){
+				if(Utils.sumBool(a.getGenotype())+1==Utils.sumBool(b.getGenotype()) && Utils.singleMismatch(a.getGenotype(), b.getGenotype())){
 					link(a,b,Utils.random());
 				}
 			}
@@ -115,16 +121,24 @@ public class GraphDatasetGenerator {
 		
 		computeSumTables();
 		
+		/* link orphans */
 		for(GenotypeNode a : V){
 			if(nParents[a.getId()]==1 && a != this.root){
 				link(this.root,a, Utils.random());
 			}
 		}
-		
-		computeSumTables();
-
 	}
 	
+
+	/**
+	 * Adds self loops
+	 */
+	protected void prepareSelfLoops() {
+		for(GenotypeNode node : V){
+			link(node,node,Utils.random());
+		}
+	}
+
 	/** 
 	 * Adds a node to the graph,
 	 * it also manages the modification of the adj matrix

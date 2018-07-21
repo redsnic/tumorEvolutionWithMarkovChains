@@ -1,8 +1,10 @@
 package GenotypeGraph;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import MarkovChains.MarkovChain;
+import Utils.Pair;
 import Utils.Utils;
 
 /**
@@ -259,7 +261,7 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 	}
 
 	 
-	/* adds edges'weigths */
+	/* adds edges weights */
 	@Override
 	public void toDotNode(GenotypeNode node){
 		System.out.println(node.getId() + " [label=\"<" + this.nodeLabel(node) + ", " + String.format("%.3f", node.probability) + ">\"]");
@@ -277,6 +279,78 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 		}
 	}
 	
+	/**
+	 * reduces the number of edges of each node to a maximum of n
+	 * keeping the most probable edges
+	 * @param n limit on the maximum number of edges to show for each node
+	 */
+	public void reducedToDot(int n){
+		int[] inEdges = new int[V.size()];
+		boolean[] touched = new boolean[V.size()];
+		touched[this.root.id] = true; 
+		System.out.println("digraph G{");
+		reducedToDotRec(this.root, n, inEdges, touched);
+		System.out.println("}");
+	}
+	
+	/**
+	 * Recursive visit for the limited print
+	 * @param position   position in the visit
+	 * @param limit      maximum number of edges accepted for each node
+	 * @param inEdges    memo array to guide the visit
+	 * @param touched    element that must be printed (visited by the edges printed by the limited print)
+	 */
+	private void reducedToDotRec(GenotypeNode position, int limit, int[] inEdges, boolean[] touched) {
+		//System.out.println(position.id);
+		if(touched[position.id]){
+			toDotNode(position);
+		}
+		ArrayList<Integer> bestEdges = getBestEdges(position.getId(), limit, inEdges);
+		if(touched[position.id]){
+			double norm = 0.;
+			for(int j: bestEdges){
+				norm += W.get(position.id, j);
+			}
+			for(int j: bestEdges){
+				touched[j] = true;
+				System.out.println(position.getId() + " -> " + j + " [label=\"" + String.format("%.3f", this.W.get(position.getId(), j)/norm) + "\"]");			
+			}
+		}
+		
+		for(int i = 0; i<E.getSize(); i++){
+			if(!E.get(position.id,i)) continue;
+			if(inEdges[i] == nParents[i]){
+				//System.out.print(position.id + " -"+ inEdges[i] +"- ");
+				reducedToDotRec(V.get(i),limit,inEdges, touched);
+			}
+		}
+	}
+
+	/**
+	 * Given a node, returns a list of size less or equal than limit
+	 * of its edges with maximum weight
+	 * It also updates visit information for the reached nodes
+	 * @param pos     node considered
+	 * @param limit   maximum length of output list
+	 * @param inEdges memo array for visit control 
+	 * @return the maximum weight edges
+	 */
+	private ArrayList<Integer> getBestEdges(int pos, int limit, int[] inEdges) {
+		ArrayList<Pair<Integer, Double>> weights = new ArrayList<Pair<Integer, Double>>();
+		for(int i=0; i<E.getSize(); i++){
+			if(!E.get(pos, i)) continue;
+			weights.add(new Pair<Integer, Double>(i, W.get(pos,i)));
+			//System.out.println(i + "++ from " + pos);
+			inEdges[i]++;
+		}
+		weights.sort((a,b) -> -a.snd().compareTo(b.snd()));
+		ArrayList<Integer> res = new ArrayList<Integer>();
+		for(int i=0; i<limit && i<weights.size(); i++){
+			res.add(weights.get(i).fst());
+		}
+		return res;
+	}
+
 	/**
 	 * Creates a MarkovChain object based on this graph 
 	 * (in fact this graph is already a Markov Chain)
@@ -307,7 +381,7 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 	}
 	
 	/**
-	 * computes the steady state of this graph seen 
+	 * computes the 'steady state' of this graph seen 
 	 * as a Markov Chain
 	 * NOTE: this graph is a DAG with a single 'root'
 	 */
@@ -329,7 +403,7 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 				child.steadyStateProbability += (position.steadyStateProbability)*W.get(position.id, child.id);
 				memoIn[child.id]++;
 				if(memoIn[child.id] == nParents[child.id]){ 
-					/* when all edges entering in a node are considered recurr in that node */
+					/* when all edges entering in a node are considered recur in that node */
 					computeSteadyStateRec(child, memoIn);
 				}
 			}
@@ -349,6 +423,8 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 			}
 		}
 	}
+	
+
 	
 	
 }

@@ -35,6 +35,18 @@ public class Utils {
 	
 	/**
 	 * @param   arr 
+	 * @return  sum of all arr's elements 
+	 */
+	public static long sumInt(ArrayList<Integer> arr) {
+		int sum = 0;
+		for(int v: arr){
+			sum+=v;
+		}
+		return sum;
+	}
+	
+	/**
+	 * @param   arr 
 	 * @return  sum of all arr's elements (considering true=1 and false=0) 
 	 */
 	public static int sumBool(boolean[] arr) {
@@ -167,6 +179,19 @@ public class Utils {
 			ans+=matrix.get(row,col);
 		}
 		return ans;
+	}
+	
+	/**
+	 * @param a
+	 * @param b
+	 * @return the hammingDistance between the genotypes of a and b
+	 */
+	public static int hammingDistance(boolean[] a,boolean[] b){
+		int count =0;
+		for(int i = 0; i<a.length; i++){
+			count += a[i]!=b[i]?1:0;
+		}
+		return count;
 	}
 	
 }

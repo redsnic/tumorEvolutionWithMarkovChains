@@ -75,6 +75,15 @@ public class GenotypeNode implements Comparable<GenotypeNode> {
 		return this.id;
 	}
 
+	/**
+	 * sets this id to this node
+	 * (do not create clashes)
+	 * @param id
+	 */
+	public void setId(int id){
+		this.id = id;
+	}
+
 	@Override
 	/**
 	 * Comparison based on number of mutations and 
@@ -114,7 +123,7 @@ public class GenotypeNode implements Comparable<GenotypeNode> {
 	 * @param   other 
 	 * @return  true if this node has a genotype containing one mutation more than the other node, false otherwise 
 	 */
-	public boolean contains(GenotypeNode other){
+	public boolean containsAndOnlyOneMore(GenotypeNode other){
 		if(this.numberOfMutations != other.getNumberOfMutations()+1){
 			return false;
 		}
@@ -128,5 +137,22 @@ public class GenotypeNode implements Comparable<GenotypeNode> {
 		}
 		return true;
 	}
+	
+	/**
+	 * Checks if this node has a genotype containing more mutations
+	 * than the other node 
+	 * (there are no genes that are mutated in other but not in this)
+	 * @param   other 
+	 * @return  true if this node has a genotype containing more mutations than the other node, false otherwise 
+	 */
+	public boolean contains(GenotypeNode other){
+		for (int i = 0; i < this.genotype.length; i++) {
+			if(!this.genotype[i] && other.genotype[i]){
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	
 }
