@@ -30,11 +30,9 @@ public class GenotypeGraphSimple extends GenotypeGraph{
 	 * @param genotypes  dataset
 	 * @param thres      limit on considered genes
 	 */
-	
 	public GenotypeGraphSimple(String[] labels, ArrayList<boolean[]> genotypes, int thres) {
 		super(labels, genotypes, thres); 
 	}
-	
 	/**
 	 * Default constuctor reading dataset from STDIN
 	 */
@@ -50,6 +48,9 @@ public class GenotypeGraphSimple extends GenotypeGraph{
 		super(thres);
 	}
 	
+	/**
+	 * preparation and addition of edges to this graph 
+	 */
 	@Override 
 	protected void prepareEdges(){
 		Collections.sort(this.V);
@@ -59,6 +60,7 @@ public class GenotypeGraphSimple extends GenotypeGraph{
 	}
 	
 	/**
+	 * Compression step:
 	 * Counts all redundant genotypes and 
 	 * reduces the repetitions to a single node
 	 * REQUIRE this.nodes is sorted
@@ -89,7 +91,8 @@ public class GenotypeGraphSimple extends GenotypeGraph{
 	}
 	
 	/**
-	 * Creates a node from A to B only if A has one mutation less than B and 
+	 * Linking step:
+	 * Creates an edge from A to B only if A has one mutation less than B and 
 	 * and all other mutations are the same
 	 */
 	protected void linkNodes(){
@@ -104,9 +107,11 @@ public class GenotypeGraphSimple extends GenotypeGraph{
 	}
 	
 	/**
-	 * Resets node IDs and adjacency matrix
+	 * Resets node IDs and adjacency matrix,
+	 * used to allocate space for the 
+	 * adjacency matrix only after the compression step
 	 */
-	private void reset(){
+	protected void reset(){
 		this.id = 0;
 		for(GenotypeNode n : V){
 			n.id = this.id;
@@ -122,7 +127,7 @@ public class GenotypeGraphSimple extends GenotypeGraph{
 	 * @param n  a node of the graph
 	 * @return   the list of the parents of n
 	 */
-	ArrayList<GenotypeNode> getParentsOf(GenotypeNode n){
+	protected ArrayList<GenotypeNode> getParentsOf(GenotypeNode n){
 		ArrayList<GenotypeNode>  pList = new ArrayList<GenotypeNode>();
 		for(int i=0; i<E.getSize(); i++){
 			if(E.get(i, n.id)){
@@ -136,7 +141,7 @@ public class GenotypeGraphSimple extends GenotypeGraph{
 	 * @param n  a node of the graph
 	 * @return   the list of the children of n
 	 */
-	ArrayList<GenotypeNode> getChildrenOf(GenotypeNode n){
+	protected ArrayList<GenotypeNode> getChildrenOf(GenotypeNode n){
 		ArrayList<GenotypeNode>  cList = new ArrayList<GenotypeNode>();
 		for(int j=0; j<E.getSize(); j++){
 			if(E.get(n.id, j)){
@@ -146,7 +151,4 @@ public class GenotypeGraphSimple extends GenotypeGraph{
 		return cList;
 	}
 	
-	
-	
-
 }

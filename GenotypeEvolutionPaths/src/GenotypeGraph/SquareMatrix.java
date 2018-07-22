@@ -32,16 +32,13 @@ public class SquareMatrix <T>{
 		size++;
 		matrix.add(new ArrayList<T>());
 		for(int i=0; i<size; i++){
-			try {
-				matrix.get(matrix.size()-1).add(initializzationValue);
-			} catch (Exception e){ // TODO
-				assert(false): "failure in invoking method clone!";
-			}
+			matrix.get(matrix.size()-1).add(initializzationValue);
 		}
 	}
 	
 	/**
 	 * Sets the value of a cell 
+	 * NOTE: always use set(i,j, modifiedCopy) to modify a cell
 	 * @param i        row
 	 * @param j        column
 	 * @param element  value

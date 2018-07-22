@@ -1,7 +1,6 @@
 package GenotypeGraph;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 import MarkovChains.MarkovChain;
 import Utils.Pair;
@@ -10,13 +9,16 @@ import Utils.Utils;
 /**
  * A very simple method to add transition probabilities to a genotype graph 
  * @author rossi
- * (Actually this is also a Markov Chain, TODO toMC() method)
+ * (Actually this is also a Markov Chain)
  * INVARIANT: the sum of the weight of each edge out-coming from any node is 1
  *            the graph is a DAG
  *            there is only a node with no parents and this node is labeled with the 'clonal' genotype 
  *            edges are set from node a to b if and only if : 
  *                  a.genotype.length + 1 = b.genotype.length and
  *                  exists a mutation x so that a.genotype = b.genotype\{x}  
+ *                  
+ *  NOTE: 'steady state' it meant the final steady state with initial probability distribution at 0 for
+ *  each node with the exception of the node associated with the clonal genotype   
  */
 public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 
@@ -34,15 +36,21 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 	 */
 	SquareMatrix<Double> W = new SquareMatrix<Double>(0.);
 	
+	/**
+	 * lookup table to avoid multiple computations of the number of parents of a node
+	 */
 	int[] nParents;
+	/**
+	 * lookup table to avoid multiple computations of the number of children of a node
+	 */
 	int[] nChildren;
 	
-	GenotypeNode root = null; // TODO int
+	GenotypeNode root = null; 
 	
 	/**
 	 * Default constructor, enriches the simple genotype graph with weights 
 	 * @param labels     HUGO symbols for genes
-	 * @param genotypes  
+	 * @param genotypes  data set
 	 * note that a single genotype is a sequence of boolean
 	 * stating if a gene was or wasn't mutated (in the order defined by labels)  
 	 */
@@ -54,7 +62,7 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 	/**
 	 * Alternate constructor with a limitation on the number of gene usable in the analysis
 	 * @param labels     HUGO symbols for genes
-	 * @param genotypes  dataset
+	 * @param genotypes  data set
 	 * @param thres      limit to the number of gene usable in the analysis
 	 */
 	public WeightedGenotypeGraph(String[] labels, ArrayList<boolean[]> genotypes, int thres) {
@@ -102,12 +110,13 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 		setDownWeightsSplitted();
 		setFinalWeights();
 		
-		/* compute steady state */
+		/* compute 'steady state' */
 		computeSteadyState();
 	}
 	
 	/**
 	 * Initialization of weight matrices
+	 * (size setup)
 	 */
 	private void initWeights() {
 		for(int i=0; i<E.getSize(); i++){
@@ -118,8 +127,8 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 	}
 
 	/**
-	 * Adds shortcuts to reduce computations of the number 
-	 * of parents and children of any node
+	 * populates the lookup tables to reduce computations of the number 
+	 * of parents and children for any node
 	 */
 	private void computeSumTables() {
 		nParents = new int[E.getSize()];
@@ -136,7 +145,6 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 	/**
 	 * Set up weights using this formula:
 	 * W(<a,b>) = [Wdown(<a,b>)*(Wup(<a,b>)/Wup(b))]/[sum_{x \in a.Adj}Wdown(<a,x>)*(Wup(<a,x>)/Wup(x)]
-	 * TODO this formula has a bias, it gives more weight to nodes with many confluences
 	 */
 	private void setFinalWeights() {
 		/* compute [Wdown(<a,b>)*(Wup(<a,b>)/Wup(b))] */
@@ -218,8 +226,10 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 
 	/**
 	 * DP procedure to efficiently compute the sum of
-	 * all the weights of nodes reachable (excluding itself) by any node 
-	 * following reverse edges
+	 * all the weights of nodes reachable 
+	 * (considering only 1/k of the weight per node where k in the number of children of that node) 
+	 * (excluding itself)
+	 *  by any node following reverse edges
 	 */
 	private void setUpWeights() {
 		int[] memoVisit = new int[this.V.size()];
@@ -301,7 +311,6 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 	 * @param touched    element that must be printed (visited by the edges printed by the limited print)
 	 */
 	private void reducedToDotRec(GenotypeNode position, int limit, int[] inEdges, boolean[] touched) {
-		//System.out.println(position.id);
 		if(touched[position.id]){
 			toDotNode(position);
 		}
@@ -320,7 +329,6 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 		for(int i = 0; i<E.getSize(); i++){
 			if(!E.get(position.id,i)) continue;
 			if(inEdges[i] == nParents[i]){
-				//System.out.print(position.id + " -"+ inEdges[i] +"- ");
 				reducedToDotRec(V.get(i),limit,inEdges, touched);
 			}
 		}
@@ -340,7 +348,6 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 		for(int i=0; i<E.getSize(); i++){
 			if(!E.get(pos, i)) continue;
 			weights.add(new Pair<Integer, Double>(i, W.get(pos,i)));
-			//System.out.println(i + "++ from " + pos);
 			inEdges[i]++;
 		}
 		weights.sort((a,b) -> -a.snd().compareTo(b.snd()));

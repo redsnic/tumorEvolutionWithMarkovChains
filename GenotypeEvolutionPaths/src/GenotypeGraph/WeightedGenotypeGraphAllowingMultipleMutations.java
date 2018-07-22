@@ -13,7 +13,7 @@ import Utils.Utils;
 public class WeightedGenotypeGraphAllowingMultipleMutations extends WeightedGenotypeGraph {
 
 	/**
-	 * Default constructor, enriches the simple genotype graph with weights 
+	 * Default constructor
 	 * @param labels     HUGO symbols for genes
 	 * @param genotypes  
 	 * note that a single genotype is a sequence of boolean
@@ -50,10 +50,11 @@ public class WeightedGenotypeGraphAllowingMultipleMutations extends WeightedGeno
 	
 	
 	/* note: elements of V are sorted by number of mutations */
+	/**
+	 * links each node with all the nodes with less mutations (and with no different additional mutation) and minimal Hamming distance to this node
+	 */
 	@Override
 	protected void linkNodes(){
-		
-		/* link each node with all the nodes with less mutations (and with no different additional mutation) and minimal Hamming distance to this node */
 		
 		for(int i = this.V.size()-1; i>=0 ; i--){
 			int distance = Integer.MAX_VALUE;

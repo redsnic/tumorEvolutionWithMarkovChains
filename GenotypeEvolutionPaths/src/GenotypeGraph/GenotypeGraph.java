@@ -16,10 +16,25 @@ import Utils.Utils;
  */
 public class GenotypeGraph {
 
+	/**
+	 * Labels (possibly HUGO symbols) associated with genes considered in the analisys
+	 */
 	String[] geneLabelsOrder;
+	/**
+	 * nodes of this graph
+	 */
 	ArrayList<GenotypeNode> V = new ArrayList<GenotypeNode>();
+	/**
+	 * edges of this graph
+	 */
 	SquareMatrix<Boolean> E = new SquareMatrix<Boolean>(false);
+	/**
+	 * identifier used to give each node a unique number 
+	 */
 	protected int id = 0; // unique id for nodes
+	/**
+	 * limit on the number of genes to be considered
+	 */
 	private int threshold = 0; /* 0 = no threshold on the number of genes */
 	
 	/**
@@ -33,7 +48,7 @@ public class GenotypeGraph {
 	 * default constructor, creates a graph consisting
 	 * of many genotype nodes
 	 * @param labels    list associating each gene's HUGO symbol with a position 
-	 * @param genotypes 
+	 * @param genotypes data set for the generation
 	 * note that a single genotype is a sequence of boolean
 	 * stating if a gene was or wasn't mutated (in the order defined by labels)  
 	 */
@@ -61,6 +76,7 @@ public class GenotypeGraph {
 	
 	/**
 	 * Alternate constructor reading input from STDIN
+	 * TODO add file support
 	 */
 	public GenotypeGraph(){
 		this.readInput();
@@ -69,9 +85,10 @@ public class GenotypeGraph {
 	
 	/**
 	 * Alternate constructor reading input from STDIN and 
-	 * setting a threshold on the maximum number of genes
-	 * @param thres number of genes to keep for the analysis 
-	 * (it selects the most mutated genes)
+	 * setting a threshold on the maximum number of genes to be considered
+	 * @param thres number of genes to keep for the analysis (n)
+	 * (it selects the most mutated genes, in case of parity this number is extended to 
+	 *  the first gene with a different number of mutation from the nth in the order)
 	 */
 	public GenotypeGraph(int thres){
 		this.threshold  = thres;
@@ -139,7 +156,7 @@ public class GenotypeGraph {
 	}
 	
 	/**
-	 * Initialize adj Matrix (note, use after genotype compression!)
+	 * Initialize adjacency Matrix (note, use after genotype compression!)
 	 */
 	void setupAdjMatrix(){
 		for(int i=0; i<V.size(); i++){
@@ -159,13 +176,13 @@ public class GenotypeGraph {
 			Triplet<String,Integer,Integer> temp = new Triplet<String,Integer,Integer>(this.geneLabelsOrder[i], geneMutations.get(i), i);
 			geneInformation.add(temp);
 		}
-		Collections.sort(geneInformation, (a,b) -> a.snd()>b.snd()?-1:(a.snd()==b.snd()?0:1)); /* sort on second element (desc) */
+		Collections.sort(geneInformation, (a,b) -> a.snd()>b.snd()?-1:(a.snd()==b.snd()?0:1)); /* sort genes on second element (desc) */
 		int thres = this.threshold!=0?this.threshold:geneInformation.size();                   /* 0 means no threshold */
 		boolean res[] = new boolean[geneInformation.size()];
 		int lastNumberOfMutations = -1;
 		int i=0;
 		for(; i<thres && i<geneInformation.size() ; i++){                                      /* keep the thres most mutated genes */
-			if(geneInformation.get(i).snd()>0){                                /* exclude gene never seen as mutated in the dataset */
+			if(geneInformation.get(i).snd()>0){                                /* exclude genes never seen as mutated in the dataset */
 				res[geneInformation.get(i).thr()]=true;
 				lastNumberOfMutations = geneInformation.get(i).snd();
 			}
@@ -199,7 +216,7 @@ public class GenotypeGraph {
 	 * prepares the edges of the graph
 	 */
 	protected void prepareEdges(){
-		/* do nothing */
+		/*do nothing meant to be used by classes extending this*/
 	}
 	
 	/**
@@ -243,7 +260,7 @@ public class GenotypeGraph {
 	}
 	
 	/**
-	 * Prints a node referring to mutated genes with their respective HUGO symbols
+	 * Prints a node referring to mutated genes with their respective labels
 	 * @param node  the node of which the genotype should be printed REQUIRE not null
 	 * @return      the sequence of HUGO symbols of genes that are mutated in a given genotype
 	 */

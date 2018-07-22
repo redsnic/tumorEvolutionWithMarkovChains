@@ -10,22 +10,30 @@ import Utils.Utils;
  * Class for creating a generic weighted graph of genotypes
  * from which to generate data sets to be used for 
  * the validation of tumor evolution inference methods
- * NOTE: might be interesting to use this with other tools
+ * NOTE: might be interesting to use this as input for other tools
  * TODO add output on STDOUT 
  * @author redsnic
  */
 public class GraphDatasetGenerator {
 	
+	/**
+	 * table to avoid multiple number of parents computations
+	 */
 	int[] nParents;
+	/**
+	 * table to avoid multiple number of parents computations
+	 */
 	int[] nChildren;
-	
+	/**
+	 * nodes of the graph
+	 */
 	ArrayList<GenotypeNode> V = new ArrayList<GenotypeNode>();
 	/**
 	 * Weights are managed in a matrix
 	 */
 	SquareMatrix<Double> W = new SquareMatrix<Double>(0.);
 	/**
-	 * adj matrix
+	 * adjacency matrix
 	 */
 	SquareMatrix<Boolean> E = new SquareMatrix<Boolean>(false);
 	/**
@@ -50,8 +58,9 @@ public class GraphDatasetGenerator {
 	}
 	
 	/**
-	 * Adds shortcuts to reduce computations of the number 
-	 * of parents and children of any node
+	 * Populates the lookup tables for the number
+	 * of parents and children
+	 * MODIFY: nParents, nChildren
 	 */
 	protected void computeSumTables() {
 		nParents = new int[E.getSize()];
@@ -66,7 +75,8 @@ public class GraphDatasetGenerator {
 	}
 	
 	/**
-	 * Default constructor (empty graph)
+	 * Default constructor (empty graph, manual construction)
+	 * @param labels "synthetic genes" names
 	 */
 	public GraphDatasetGenerator(String[] labels){	
 		this.geneLabelsOrder = labels;
@@ -77,7 +87,6 @@ public class GraphDatasetGenerator {
 	 * @param n number of artificial genes 
 	 */
 	public GraphDatasetGenerator(int n){
-		
 		assert(n<64): "too many genes (long limit)!";
 		this.geneLabelsOrder = new String[n];
 		for(int i=0; i<geneLabelsOrder.length; i++){
@@ -100,7 +109,6 @@ public class GraphDatasetGenerator {
 		prepareLinks();
 		
 		computeSumTables();
-
 	}
 	
 	/**
@@ -131,7 +139,7 @@ public class GraphDatasetGenerator {
 	
 
 	/**
-	 * Adds self loops
+	 * Adds self loops with random probability
 	 */
 	protected void prepareSelfLoops() {
 		for(GenotypeNode node : V){
@@ -141,7 +149,7 @@ public class GraphDatasetGenerator {
 
 	/** 
 	 * Adds a node to the graph,
-	 * it also manages the modification of the adj matrix
+	 * it also manages the modification of the adjacency matrix
 	 * @param n node to be added
 	 */
 	public GenotypeNode add(boolean[] n){

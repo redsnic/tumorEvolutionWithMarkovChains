@@ -5,6 +5,11 @@ import java.util.ArrayList;
 import MarkovChains.MarkovNode;
 import Utils.Utils;
 
+/**
+ * TODO re-implement with adjacency matrix if needed
+ * @author rossi
+ *
+ */
 public class GenotypeMarkovNode implements MarkovNode {
 
 	/**
@@ -53,6 +58,4 @@ public class GenotypeMarkovNode implements MarkovNode {
 		weights.add(weight);
 	}
 	
-	
-
 }   

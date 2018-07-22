@@ -4,11 +4,11 @@ import Utils.Utils;
 
 /**
  * A base class for a single node from a genotype graph 
- * (based on adj matrix)
+ * (based on adjacency matrix)
  * @author rossi
  * 
  * INVARIANT: numberOfMutations = #count of true in genotype
- * 			  probability, emissionProbability , steadyStateProbability in [0,1]
+ * 			  probability, steadyStateProbability in [0,1]
  */
 public class GenotypeNode implements Comparable<GenotypeNode> {
 	/**
@@ -100,7 +100,7 @@ public class GenotypeNode implements Comparable<GenotypeNode> {
 	}
 	
 	/**
-	 * Comparison of two genotypes A and B.
+	 * Comparison of two genotypes A and B. (lexical order)
 	 * A is considered bigger than B if the binary number it
 	 * represents is bigger than that of B 
 	 * @param other B's genotype

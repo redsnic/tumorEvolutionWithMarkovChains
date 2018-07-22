@@ -3,7 +3,7 @@
   realizations="true" associations="true" dependencies="false" nesting-relationships="true" router="FAN">  
   <class id="1" language="java" name="GenotypeGraph.GenotypeGraph" project="GenotypeEvolutionPaths" 
     file="/GenotypeEvolutionPaths/src/GenotypeGraph/GenotypeGraph.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="857" y="717"/>    
+    <position height="-1" width="-1" x="790" y="616"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -12,7 +12,7 @@
   </class>  
   <class id="2" language="java" name="GenotypeGraph.GenotypeGraphSimple" project="GenotypeEvolutionPaths" 
     file="/GenotypeEvolutionPaths/src/GenotypeGraph/GenotypeGraphSimple.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="1215" y="717"/>    
+    <position height="-1" width="-1" x="1117" y="620"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -21,7 +21,7 @@
   </class>  
   <class id="3" language="java" name="GenotypeGraph.GenotypeNode" project="GenotypeEvolutionPaths" 
     file="/GenotypeEvolutionPaths/src/GenotypeGraph/GenotypeNode.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="522" y="722"/>    
+    <position height="-1" width="-1" x="148" y="822"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -30,7 +30,7 @@
   </class>  
   <class id="4" language="java" name="GenotypeGraph.WeightedGenotypeGraph" project="GenotypeEvolutionPaths" 
     file="/GenotypeEvolutionPaths/src/GenotypeGraph/WeightedGenotypeGraph.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="1584" y="714"/>    
+    <position height="-1" width="-1" x="1464" y="623"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -39,7 +39,7 @@
   </class>  
   <class id="5" language="java" name="GenotypeGraph.WeightedGenotypeGraphTest" project="GenotypeEvolutionPaths" 
     file="/GenotypeEvolutionPaths/src/GenotypeGraph/WeightedGenotypeGraphTest.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="1810" y="724"/>    
+    <position height="-1" width="-1" x="1480" y="954"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -48,7 +48,7 @@
   </class>  
   <class id="6" language="java" name="MarkovChains.MarkovChain" project="GenotypeEvolutionPaths" 
     file="/GenotypeEvolutionPaths/src/MarkovChains/MarkovChain.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="128" width="157" x="1421" y="72"/>    
+    <position height="-1" width="-1" x="1432" y="-10"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -57,7 +57,7 @@
   </class>  
   <interface id="7" language="java" name="MarkovChains.MarkovNode" project="GenotypeEvolutionPaths" 
     file="/GenotypeEvolutionPaths/src/MarkovChains/MarkovNode.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="1735" y="136"/>    
+    <position height="-1" width="-1" x="1668" y="-10"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -66,7 +66,7 @@
   </interface>  
   <class id="8" language="java" name="MutationGraph.TestTraitGraph" project="GenotypeEvolutionPaths" 
     file="/GenotypeEvolutionPaths/src/MutationGraph/TestTraitGraph.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="558" y="386"/>    
+    <position height="-1" width="-1" x="888" y="6"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -75,7 +75,7 @@
   </class>  
   <class id="9" language="java" name="MutationGraph.TRaITGraph" project="GenotypeEvolutionPaths" 
     file="/GenotypeEvolutionPaths/src/MutationGraph/TRaITGraph.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="565" y="201"/>    
+    <position height="-1" width="-1" x="747" y="196"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -84,7 +84,7 @@
   </class>  
   <class id="10" language="java" name="MutationGraph.TRaITMarkovNode" project="GenotypeEvolutionPaths" 
     file="/GenotypeEvolutionPaths/src/MutationGraph/TRaITMarkovNode.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="1741" y="348"/>    
+    <position height="-1" width="-1" x="1674" y="202"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -93,7 +93,7 @@
   </class>  
   <class id="11" language="java" name="MutationGraph.TRaITNode" project="GenotypeEvolutionPaths" 
     file="/GenotypeEvolutionPaths/src/MutationGraph/TRaITNode.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="934" y="204"/>    
+    <position height="-1" width="-1" x="1097" y="192"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -102,7 +102,7 @@
   </class>  
   <class id="12" language="java" name="Utils.Utils" project="GenotypeEvolutionPaths" 
     file="/GenotypeEvolutionPaths/src/Utils/Utils.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="189" y="196"/>    
+    <position height="-1" width="-1" x="185" y="107"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -111,89 +111,237 @@
   </class>  
   <class id="13" language="java" name="GenotypeGraph.GenotypeMarkovNode" project="GenotypeEvolutionPaths" 
     file="/GenotypeEvolutionPaths/src/GenotypeGraph/GenotypeMarkovNode.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="1495" y="343"/>    
+    <position height="-1" width="-1" x="1428" y="197"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <generalization id="14">    
-    <end type="SOURCE" refId="2"/>    
-    <end type="TARGET" refId="1"/>  
-  </generalization>  
-  <realization id="15">    
-    <end type="SOURCE" refId="10"/>    
+  <class id="14" language="java" name="DatasetGenerators.GraphDatasetGenerator" project="GenotypeEvolutionPaths" 
+    file="/GenotypeEvolutionPaths/src/DatasetGenerators/GraphDatasetGenerator.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="433" y="811"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="15" language="java" name="DatasetGenerators.GraphDatasetGeneratorAllowingMultipleMutations" 
+    project="GenotypeEvolutionPaths" 
+    file="/GenotypeEvolutionPaths/src/DatasetGenerators/GraphDatasetGeneratorAllowingMultipleMutations.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="331" y="508"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="16" language="java" name="DatasetGenerators.MainSimulation" project="GenotypeEvolutionPaths" 
+    file="/GenotypeEvolutionPaths/src/DatasetGenerators/MainSimulation.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="289" y="1104"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="17" language="java" name="GenotypeGraph.SquareMatrix" project="GenotypeEvolutionPaths" 
+    file="/GenotypeEvolutionPaths/src/GenotypeGraph/SquareMatrix.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="996" y="1013"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="18" language="java" name="GenotypeGraph.WeightedGenotypeGraphAllowingMultipleMutations" 
+    project="GenotypeEvolutionPaths" 
+    file="/GenotypeEvolutionPaths/src/GenotypeGraph/WeightedGenotypeGraphAllowingMultipleMutations.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="1905" y="622"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="19" language="java" name="Utils.Pair" project="GenotypeEvolutionPaths" 
+    file="/GenotypeEvolutionPaths/src/Utils/Pair.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="389" y="16"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="20" language="java" name="Utils.Triplet" project="GenotypeEvolutionPaths" 
+    file="/GenotypeEvolutionPaths/src/Utils/Triplet.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="385" y="195"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="21" language="java" name="GenotypeGraph.Main" project="GenotypeEvolutionPaths" 
+    file="/GenotypeEvolutionPaths/src/GenotypeGraph/Main.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="1765" y="758"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <realization id="22">    
+    <end type="SOURCE" refId="13"/>    
     <end type="TARGET" refId="7"/>  
   </realization>  
-  <association id="16">    
-    <end type="SOURCE" refId="10" navigable="false">      
-      <attribute id="17" name="nodes">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </attribute>      
-      <multiplicity id="18" minimum="0" maximum="2147483647">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </multiplicity>    
+  <association id="23">    
+    <end type="SOURCE" refId="1" navigable="false">      
+      <attribute id="24" name="E"/>      
+      <multiplicity id="25" minimum="0" maximum="1"/>    
     </end>    
-    <end type="TARGET" refId="10" navigable="true"/>    
+    <end type="TARGET" refId="17" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <association id="19">    
-    <end type="SOURCE" refId="9" navigable="false">      
-      <attribute id="20" name="nodes">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </attribute>      
-      <multiplicity id="21" minimum="0" maximum="2147483647">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </multiplicity>    
+  <association id="26">    
+    <end type="SOURCE" refId="14" navigable="false">      
+      <attribute id="27" name="V"/>      
+      <multiplicity id="28" minimum="0" maximum="2147483647"/>    
     </end>    
-    <end type="TARGET" refId="11" navigable="true"/>    
+    <end type="TARGET" refId="3" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <association id="22">    
+  <association id="29">    
     <end type="SOURCE" refId="6" navigable="false">      
-      <attribute id="23" name="nodes">        
-        <position height="0" width="0" x="0" y="0"/>      
+      <attribute id="30" name="nodes">        
+        <position height="0" width="0" x="-146" y="-60"/>      
       </attribute>      
-      <multiplicity id="24" minimum="0" maximum="2147483647">        
-        <position height="0" width="0" x="0" y="0"/>      
+      <multiplicity id="31" minimum="0" maximum="2147483647">        
+        <position height="0" width="0" x="-146" y="-60"/>      
       </multiplicity>    
     </end>    
     <end type="TARGET" refId="7" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <realization id="25">    
-    <end type="SOURCE" refId="13"/>    
-    <end type="TARGET" refId="7"/>  
-  </realization>  
-  <association id="26">    
-    <end type="SOURCE" refId="11" navigable="false">      
-      <attribute id="27" name="nodes">        
-        <position height="0" width="0" x="0" y="0"/>      
+  <association id="32">    
+    <end type="SOURCE" refId="4" navigable="false">      
+      <attribute id="33" name="upWeights"/>      
+      <multiplicity id="34" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="17" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="35">    
+    <end type="SOURCE" refId="15"/>    
+    <end type="TARGET" refId="14"/>  
+  </generalization>  
+  <association id="36">    
+    <end type="SOURCE" refId="14" navigable="false">      
+      <attribute id="37" name="E"/>      
+      <multiplicity id="38" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="17" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="39">    
+    <end type="SOURCE" refId="10" navigable="false">      
+      <attribute id="40" name="nodes">        
+        <position height="0" width="0" x="-146" y="-60"/>      
       </attribute>      
-      <multiplicity id="28" minimum="0" maximum="2147483647">        
-        <position height="0" width="0" x="0" y="0"/>      
+      <multiplicity id="41" minimum="0" maximum="2147483647">        
+        <position height="0" width="0" x="-146" y="-60"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="10" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="42">    
+    <end type="SOURCE" refId="14" navigable="false">      
+      <attribute id="43" name="W"/>      
+      <multiplicity id="44" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="17" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="45">    
+    <end type="SOURCE" refId="2"/>    
+    <end type="TARGET" refId="1"/>  
+  </generalization>  
+  <association id="46">    
+    <end type="SOURCE" refId="9" navigable="false">      
+      <attribute id="47" name="nodes">        
+        <position height="0" width="0" x="163" y="-12"/>      
+      </attribute>      
+      <multiplicity id="48" minimum="0" maximum="2147483647">        
+        <position height="0" width="0" x="163" y="-12"/>      
       </multiplicity>    
     </end>    
     <end type="TARGET" refId="11" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <generalization id="29">    
-    <end type="SOURCE" refId="4"/>    
-    <end type="TARGET" refId="2"/>  
-  </generalization>  
-  <association id="30">    
+  <association id="49">    
+    <end type="SOURCE" refId="4" navigable="false">      
+      <attribute id="50" name="W"/>      
+      <multiplicity id="51" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="17" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="52">    
     <end type="SOURCE" refId="13" navigable="false">      
-      <attribute id="31" name="nodes">        
-        <position height="0" width="0" x="0" y="0"/>      
+      <attribute id="53" name="nodes">        
+        <position height="0" width="0" x="-146" y="-60"/>      
       </attribute>      
-      <multiplicity id="32" minimum="0" maximum="2147483647">        
-        <position height="0" width="0" x="0" y="0"/>      
+      <multiplicity id="54" minimum="0" maximum="2147483647">        
+        <position height="0" width="0" x="-146" y="-60"/>      
       </multiplicity>    
     </end>    
     <end type="TARGET" refId="13" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
+  <association id="55">    
+    <end type="SOURCE" refId="4" navigable="false">      
+      <attribute id="56" name="downWeights"/>      
+      <multiplicity id="57" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="17" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="58">    
+    <end type="SOURCE" refId="14" navigable="false">      
+      <attribute id="59" name="root"/>      
+      <multiplicity id="60" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="3" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="61">    
+    <end type="SOURCE" refId="4"/>    
+    <end type="TARGET" refId="2"/>  
+  </generalization>  
+  <realization id="62">    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="7"/>  
+  </realization>  
+  <association id="63">    
+    <end type="SOURCE" refId="11" navigable="false">      
+      <attribute id="64" name="nodes">        
+        <position height="0" width="0" x="163" y="-12"/>      
+      </attribute>      
+      <multiplicity id="65" minimum="0" maximum="2147483647">        
+        <position height="0" width="0" x="163" y="-12"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="11" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="66">    
+    <end type="SOURCE" refId="18"/>    
+    <end type="TARGET" refId="4"/>  
+  </generalization>  
   <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
     sort-features="false" accessors="true" visibility="true">    
     <attributes public="true" package="true" protected="true" private="true" static="true"/>    

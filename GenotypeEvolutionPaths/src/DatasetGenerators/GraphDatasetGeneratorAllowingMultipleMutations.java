@@ -9,7 +9,7 @@ import Utils.Utils;
 
 
 /**
- * Extension of GraphDatasetGenerator that produces genotype graph where it
+ * Extension of GraphDatasetGenerator that produces genotype graph where it 
  * is possible to have multiple acquisitions of mutations as a single event 
  * (when this happen is impossible to acquire part of them alone)
  * @author rossi
@@ -25,6 +25,9 @@ public class GraphDatasetGeneratorAllowingMultipleMutations extends GraphDataset
 		super(labels);
 	}
 	
+	/**
+	 * changed to generate also links with multiple mutations acquisition
+	 */
 	@Override
 	protected void prepareLinks(){
 		
@@ -36,7 +39,7 @@ public class GraphDatasetGeneratorAllowingMultipleMutations extends GraphDataset
 			genotypes.add(new Pair<GenotypeNode, Integer>(n, Utils.sumBool(n.getGenotype())));
 		}
 		
-		/* sorting genotypes by number of mutations */
+		/* sorting genotypes by number of mutations for efficiency */
 		Collections.sort(genotypes, (a, b) -> a.snd()>b.snd()?1:a.snd()==b.snd()?0:-1);
 		
 		V = new ArrayList<GenotypeNode>();
