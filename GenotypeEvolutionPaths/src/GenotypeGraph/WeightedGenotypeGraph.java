@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import MarkovChains.MarkovChain;
 import Utils.Pair;
+import Utils.SquareMatrix;
 import Utils.Utils;
 
 /**
@@ -175,7 +176,7 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 				E.set(root.id, n.id, true);
 			}
 		}
-		root.probability = 1; /* TODO check if it is better to use 0 or 1 */
+		root.probability = 0.0000001; /* TODO check if it is better to use 0 or 1 */
 		this.V.add(root);
 		this.root = root;
 	}
@@ -332,6 +333,7 @@ public class WeightedGenotypeGraph extends GenotypeGraphSimple {
 				reducedToDotRec(V.get(i),limit,inEdges, touched);
 			}
 		}
+		
 	}
 
 	/**

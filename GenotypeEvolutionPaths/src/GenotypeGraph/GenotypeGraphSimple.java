@@ -3,6 +3,8 @@ package GenotypeGraph;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import Utils.SquareMatrix;
+
 /**
  * Generates a graph connecting all nodes with equal genotypes 
  * but for a single extra mutation in the receiver of the edge

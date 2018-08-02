@@ -3,8 +3,6 @@ package Utils;
 import java.util.ArrayList;
 import java.util.Random;
 
-import GenotypeGraph.SquareMatrix;
-
 public class Utils {
 	
 	public static Random rnd = new Random(System.currentTimeMillis());
@@ -192,6 +190,51 @@ public class Utils {
 			count += a[i]!=b[i]?1:0;
 		}
 		return count;
+	}
+	
+	/**
+	 * Comparator for a and b seen as binary values
+	 * @param a
+	 * @param b
+	 * @return a>b = 1, a=b = 0, a<b = -1
+	 */
+	public static int genotypeBinaryValueCompare(boolean[] a,boolean[] b){
+		for(int i = 0; i<a.length; i++){
+			if(a[i]==true && b[i]==false){
+				return 1;
+			}else if(a[i]==false && b[i]==true){
+				return -1;
+			}
+		}
+		return 0;
+	}
+
+	/**
+	 * Transforms to string the elements of a boolean vector casted to int and spcaed by spaces 
+	 * @param bs
+	 * @return the representation of bs
+	 */
+	public static String BoolVecToString(boolean[] bs) {
+		StringBuilder res = new StringBuilder();
+		for(boolean b : bs){
+			res.append((b?1:0) + " ");
+		}
+		return res.toString();
+	}
+	
+	/**
+	 * @param a set 
+	 * @param b set
+	 * @return a \subseteq b
+	 */
+	public static boolean isSubseteq(boolean[] a, boolean[] b){
+		assert(a.length == b.length);
+		for(int i = 0; i<a.length; i++){
+			if(a[i]==true && b[i]==false){
+				return false;
+			}
+		}
+		return true;
 	}
 	
 }

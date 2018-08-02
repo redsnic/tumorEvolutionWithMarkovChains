@@ -1,4 +1,4 @@
-package GenotypeGraph;
+package Utils;
 
 import java.util.ArrayList;
 
@@ -33,6 +33,15 @@ public class SquareMatrix <T>{
 		matrix.add(new ArrayList<T>());
 		for(int i=0; i<size; i++){
 			matrix.get(matrix.size()-1).add(initializzationValue);
+		}
+	}
+	
+	/**
+	 * Makes this matrix n row and n column larger
+	 */
+	public void enlarge(int n){
+		for(int i = 0; i<n; i++){
+			this.enlarge();
 		}
 	}
 	

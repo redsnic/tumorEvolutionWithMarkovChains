@@ -1,5 +1,9 @@
 DatasetGenerators
+DatasetGeneratorsv2
+Datasets
 GenotypeGraph
+GenotypeGraphsv2
+Graphs
 MarkovChains
 MutationGraph
 Utils

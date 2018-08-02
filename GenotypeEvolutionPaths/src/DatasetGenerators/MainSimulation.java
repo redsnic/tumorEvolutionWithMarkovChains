@@ -3,7 +3,6 @@ package DatasetGenerators;
 import java.util.ArrayList;
 
 import GenotypeGraph.GenotypeNode;
-import GenotypeGraph.WeightedGenotypeGraph;
 import GenotypeGraph.WeightedGenotypeGraphAllowingMultipleMutations;
 
 public class MainSimulation {
@@ -102,6 +101,35 @@ public class MainSimulation {
 		return gen;
 	}
 	
+	@SuppressWarnings("unused")
+	private static GraphDatasetGeneratorAllowingMultipleMutations createTemp(){
+		String[] labels = {"A","B"};
+		GraphDatasetGeneratorAllowingMultipleMutations gen = new GraphDatasetGeneratorAllowingMultipleMutations(labels);
+		
+		boolean[] root = {false,false};
+		boolean[] a = {true,false};
+		boolean[] b = {false,true};
+		boolean[] ab = {true,true};
+		
+		GenotypeNode nroot = gen.add(root);
+		GenotypeNode na    = gen.add(a);
+		GenotypeNode nb    = gen.add(b);
+		GenotypeNode nab   = gen.add(ab);
+		
+		gen.link(nroot, nroot, 0.5);
+		gen.link(nroot, nb, 1./3.);
+		gen.link(nroot, na, 0.5/3);
+		gen.link(nb, nb, 0.5);
+		gen.link(nb, nab, 0.5);
+		gen.link(na, na, 0.5);
+		gen.link(na, nab, 0.5);
+		gen.link(nab, nab, 1);
+		
+		gen.setRoot(nroot);
+		
+		return gen;
+	}
+	
 	/**
 	 * Simulates the generator to create samples for an artificial data set
 	 * @param gen         generator
@@ -119,15 +147,15 @@ public class MainSimulation {
 	
 	public static void main(String[] args) {
 
-		//GraphDatasetGenerator gen = createGraphDatasetGeneratorWithEqualSelfLoopProbability();
-		GraphDatasetGeneratorAllowingMultipleMutations gen = new GraphDatasetGeneratorAllowingMultipleMutations(6);
+		GraphDatasetGeneratorAllowingMultipleMutations gen = createGraphDatasetGeneratorWithEqualSelfLoopProbability();
+		//GraphDatasetGeneratorAllowingMultipleMutations gen = new GraphDatasetGeneratorAllowingMultipleMutations(6);
 		System.out.println("Simulation graph: ");
 		gen.toDot();
 		
 		String[] labels = gen.getLabels();
 		 
 		/* it is important to keep this version */
-		WeightedGenotypeGraph sstate = new WeightedGenotypeGraph(labels, simulate(gen, 1000000, 100));
+		WeightedGenotypeGraphAllowingMultipleMutations sstate = new WeightedGenotypeGraphAllowingMultipleMutations(labels, simulate(gen, 100000, 1000));
 		ArrayList<boolean[]> D = new ArrayList<boolean[]>();
 		for(int i=1; i<=1; i++){ /* modify here to set up data set */
 			D.addAll(simulate(gen, 1000000, 6));
@@ -139,7 +167,10 @@ public class MainSimulation {
 		sstate.printSteadyState();
 		System.out.println("Simulated steady state from generated model");
 		grp.printSteadyState();
-		
+		int nSamples = 500;
+		System.out.println("A generated dataset of "+nSamples+" samples");
+		//gen.printDatasetBMLFormat(nSamples, 6);
+		//gen.printDatasetTRONCOFormat(nSamples, 6);
 	}
 
 }
