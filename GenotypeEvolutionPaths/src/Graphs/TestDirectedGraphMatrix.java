@@ -31,7 +31,7 @@ public class TestDirectedGraphMatrix {
 		tst.link(ab, abd);
 		tst.link(bd, abd);
 		
-		tst.toDot();
+		tst.toDot(System.out);
 		
 	}
 
@@ -60,7 +60,7 @@ public class TestDirectedGraphMatrix {
 		tst.link(ab, abd);
 		tst.link(bd, abd);
 		
-		tst.toDot();
+		tst.toDot(System.out);
 		
 	}
 	

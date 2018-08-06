@@ -14,7 +14,7 @@ public class TestGraph {
 		D.read("/home/rossi/Scrivania/Nuovo documento 5");
 		D.compact();
 		GenotypeGraphAllowingMultipleMutations grp = new GenotypeGraphAllowingMultipleMutations(D);
-		grp.toDot();
+		grp.toDot(System.out);
 	}
 
 }

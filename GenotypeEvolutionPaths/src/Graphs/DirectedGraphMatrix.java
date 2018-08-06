@@ -1,5 +1,8 @@
 package Graphs;
 
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,19 +77,19 @@ public class DirectedGraphMatrix<T> implements Graph<T>
 	}
 
 	@Override
-	public void toDot() {
-		System.out.println("digraph g{");
+	public void toDot(PrintStream out) {
+		out.println("digraph g{");
 		for(Node<T> v: V){
-			v.toDot();
+			v.toDot(out);
 		}
 		for(int i=0; i<E.getSize(); i++){
 			for (int j = 0; j < E.getSize(); j++) {
 				if(E.get(i, j)){
-					System.out.println(i + " -> " + j);
+					out.println(i + " -> " + j);
 				}
 			}
 		}
-		System.out.println("}");
+		out.println("}");
 	}
 	
 	/**

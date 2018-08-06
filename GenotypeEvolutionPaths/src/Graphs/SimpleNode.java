@@ -1,5 +1,7 @@
 package Graphs;
 
+import java.io.PrintStream;
+
 /**
  * Class for a node in a graph that is associated to an item 
  * @author rossi
@@ -37,8 +39,8 @@ public class SimpleNode <T> implements Node<T> {
 	}
 	
 	@Override
-	public void toDot(){
-		System.out.println(this.id + " [label=\""+ this.content.toString() +"\"]");
+	public void toDot(PrintStream out){
+		out.println(this.id + " [label=\""+ this.content.toString() +"\"]");
 	}
 
 

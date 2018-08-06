@@ -1,5 +1,6 @@
 package DatasetGeneratorsv2;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,7 +53,6 @@ public class GraphDatasetGeneratorAllowingMultipleMutations {
 			}
 		}
 		linkAndWeightNodes(nodes);
-		structure.toDot();
 	}
 	
 	/**
@@ -62,23 +62,23 @@ public class GraphDatasetGeneratorAllowingMultipleMutations {
 	 */
 	private void linkAndWeightNodes(ArrayList<Node<GenotypeGen>> nodes) {
 		
-		for(Node<GenotypeGen> a : nodes){
+		for(Node<GenotypeGen> b : nodes){
 			ArrayList<Node<GenotypeGen>> toLink = new ArrayList<Node<GenotypeGen>>();
 			int minDist = Integer.MAX_VALUE;
-			for(Node<GenotypeGen> b : nodes){
+			for(Node<GenotypeGen> a : nodes){
 				if(a==b) continue;
 				if(Utils.isSubseteq(a.getContent().get(), b.getContent().get()) && minDist>=Utils.hammingDistance(a.getContent().get(), b.getContent().get())){
 					if(minDist==Utils.hammingDistance(a.getContent().get(), b.getContent().get())){
-						toLink.add(b);
+						toLink.add(a);
 					}else{
 						toLink = new ArrayList<Node<GenotypeGen>>();
-						toLink.add(b);
+						toLink.add(a);
 						minDist = Utils.hammingDistance(a.getContent().get(), b.getContent().get());
 					}
 				}
 			}
-			this.link(a, a, Utils.random());
-			for(Node<GenotypeGen> b : toLink){
+			this.link(b, b, Utils.random());
+			for(Node<GenotypeGen> a : toLink){
 				this.link(a, b, Utils.random());
 			}
 			
@@ -159,9 +159,65 @@ public class GraphDatasetGeneratorAllowingMultipleMutations {
 	
 	/**
 	 * Prints this graph in dot format
+	 * @param out 
 	 */
-	public void toDot(){
-		this.structure.toDot();
+	public void toDot(PrintStream out){
+		
+		out.println("digraph G{");
+		
+		out.println("label = <Generator Graph>");
+		out.println("labelloc = \"t\"");
+		
+		for(Node<GenotypeGen> node : this.structure.getNodes()){
+			out.println(node.getId() + " [label=\"" + translate(node.getContent().get()) +"\"]" );
+		}
+		
+		for(Node<GenotypeGen> node : this.structure.getNodes()){
+			double norm = 0.;
+			for(Node<GenotypeGen> next : this.structure.getAdjacencyList(node) ){
+				norm += this.structure.getWeight(node, next);
+			}
+			
+			double normWithoutSelfLoop = norm - this.structure.getWeight(node, node);
+			
+			for(Node<GenotypeGen> next : this.structure.getAdjacencyList(node)){
+				if(node != next){
+					out.println( node.getId() + " -> " + next.getId() + " [label=<<font color='red'><b>" + String.format("%.3f", this.structure.getWeight(node, next)/norm) + "</b></font>" + 
+										"<br/><font color='blue'><b>" +  String.format("%.3f",this.structure.getWeight(node, next)/normWithoutSelfLoop) + "</b></font>>]" );
+				} else {
+					out.println( node.getId() + " -> " + next.getId() + " [label=<<font color='red'><b>" + String.format("%.3f",this.structure.getWeight(node, next)/norm) + "</b></font>>]" );
+				}
+			}
+			
+		}
+		
+		out.println("node [shape=plaintext]");
+
+		out.println("		subgraph cluster_01 { ");
+		out.println("		    label = \"Legend\";");
+		out.println(
+				"		    key [label=<<table border=\"0\" cellpadding=\"2\" cellspacing=\"0\" cellborder=\"0\">");
+		out.println(
+				"		      <tr><td align=\"left\"><font color='red'><b>red</b></font>  :  transition probabilities</td></tr>");
+		out.println(
+				"		      <tr><td align=\"left\"><font color='blue'><b>blue</b></font>  :  transition probabilities if acquiring a mutation</td></tr>");
+		out.println("	      </table>>]");
+		out.println("		}");
+
+		out.println("}");
+		
+	}
+
+	private ArrayList<String> translate(boolean[] bs) {
+		ArrayList<String> genes = new ArrayList<String>();
+		int i=0;
+		for(boolean b : bs){
+			if(b){
+				genes.add(labels[i]);
+			}
+			i++;
+		}
+		return genes;
 	}
 	
 	

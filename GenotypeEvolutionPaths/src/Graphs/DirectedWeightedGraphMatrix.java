@@ -1,5 +1,7 @@
 package Graphs;
 
+import java.io.PrintStream;
+
 import Utils.SquareMatrix;
 
 /**
@@ -49,19 +51,19 @@ public class DirectedWeightedGraphMatrix<T> extends DirectedGraphMatrix<T>{
 	}
 	
 	@Override
-	public void toDot() {
-		System.out.println("digraph g{");
+	public void toDot(PrintStream out) {
+		out.println("digraph g{");
 		for(Node<T> v: V){
-			v.toDot();
+			v.toDot(out);
 		}
 		for(int i=0; i<E.getSize(); i++){
 			for (int j = 0; j < E.getSize(); j++) {
 				if(E.get(i, j)){
-					System.out.println(i + " -> " + j + "[label=\"" + String.format("%.3f", W.get(i, j)) + "\"]");
+					out.println(i + " -> " + j + "[label=\"" + String.format("%.3f", W.get(i, j)) + "\"]");
 				}
 			}
 		}
-		System.out.println("}");
+		out.println("}");
 	}
 
 	/**

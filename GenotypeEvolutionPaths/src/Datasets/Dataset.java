@@ -2,6 +2,7 @@ package Datasets;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Scanner;
@@ -374,16 +375,16 @@ public class Dataset {
 	/**
 	 * Print this data set in BML format
 	 */
-	public void printBMLFormat(){
-		System.out.println(this.getNumberOfGenotypes() + " " + this.getNumberOfGenes());
+	public void printBMLFormat(PrintStream out){
+		out.println(this.getNumberOfGenotypes() + " " + this.getNumberOfGenes());
 		for(String s : labels){
-			System.out.print(s + " ");
+			out.print(s + " ");
 		}
-		System.out.println();
+		out.println();
 		int num = 0;
 		for(int i = 0; i<this.genotypes.size(); i++){
 			for(int j = 0 ; j<this.frequencyOf(i); j++){
-				System.out.println("Sample_" + num + " " + Utils.BoolVecToString(this.genotypes.get(i)));
+				out.println("Sample_" + num + " " + Utils.BoolVecToString(this.genotypes.get(i)));
 				num++;
 			}
 		}
@@ -392,16 +393,16 @@ public class Dataset {
 	/**
 	 * Print this data set in TRONCO format
 	 */
-	public void printTRONCOFormat(){
-		System.out.print("s\\g ");
+	public void printTRONCOFormat(PrintStream out){
+		out.print("s\\g ");
 		for(String s : labels){
-			System.out.print(s + " ");
+			out.print(s + " ");
 		}
-		System.out.println();
+		out.println();
 		int num = 0;
 		for(int i = 0; i<this.genotypes.size(); i++){
 			for(int j = 0 ; j<this.frequencyOf(i); j++){
-				System.out.println("Sample_" + num + " " + Utils.BoolVecToString(this.genotypes.get(i)));
+				out.println("Sample_" + num + " " + Utils.BoolVecToString(this.genotypes.get(i)));
 				num++;
 			}
 		}

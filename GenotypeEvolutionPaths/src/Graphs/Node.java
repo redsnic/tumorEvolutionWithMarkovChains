@@ -1,5 +1,7 @@
 package Graphs;
 
+import java.io.PrintStream;
+
 public interface Node <T>{
 	
 	/**
@@ -26,7 +28,8 @@ public interface Node <T>{
 	
 	/**
 	 * prints this node in dot format
+	 * @param out 
 	 */
-	public void toDot();
+	public void toDot(PrintStream out);
 	
 }

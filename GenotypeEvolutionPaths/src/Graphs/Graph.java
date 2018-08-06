@@ -1,5 +1,6 @@
 package Graphs;
 
+import java.io.PrintStream;
 import java.util.List;
 
 public interface Graph <T>{
@@ -47,6 +48,6 @@ public interface Graph <T>{
 	/**
 	 * Prints this graph in dot format
 	 */
-	public void toDot();
+	public void toDot(PrintStream out);
 	
 }

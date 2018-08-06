@@ -1,5 +1,7 @@
 package GenotypeGraphsv2;
 
+import java.io.PrintStream;
+
 import Datasets.Dataset;
 import Graphs.DirectedWeightedGraphMatrix;
 import Graphs.SimpleNode;
@@ -22,8 +24,8 @@ public abstract class GenotypeGraph {
 	
 	abstract void addWeights();
 	
-	public void toDot(){
-		structure.toDot();
+	public void toDot(PrintStream out){
+		structure.toDot(out);
 	}
 	
 }
