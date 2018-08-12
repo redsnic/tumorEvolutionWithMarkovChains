@@ -190,7 +190,7 @@ public class Dataset {
 		
 		/* count genes frequency */
 		
-		int[] counts = new int[this.genotypes.size()];
+		int[] counts = new int[this.getNumberOfGenes()];
 		for(int i=0; i<this.genotypes.size(); i++){   
 			for(int j=0; j<this.genotypes.get(i).length; j++){
 				counts[j]+=this.genotypes.get(i)[j]?1:0;
@@ -332,7 +332,7 @@ public class Dataset {
 	 * @return the number of genotypes in this dataset
 	 */
 	public int getNumberOfGenotypes(){
-		return this.genotypes.size();
+		return (int) Utils.sumInt(this.frequencies);
 	}
 	
 	@Override
@@ -406,6 +406,10 @@ public class Dataset {
 				num++;
 			}
 		}
+	}
+
+	public int getNumberOfDifferentGenotypes() {
+		return this.genotypes.size();
 	}
 
 }

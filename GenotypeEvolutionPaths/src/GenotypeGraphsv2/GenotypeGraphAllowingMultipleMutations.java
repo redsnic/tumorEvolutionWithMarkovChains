@@ -36,7 +36,7 @@ public class GenotypeGraphAllowingMultipleMutations extends GenotypeGraph {
 		genotypes.add(structure.add(new GenotypeInfo(new boolean[dataset.getNumberOfGenes()], dataset, 0.)));
 		root = genotypes.get(0);
 		
-		for(int i=0; i<this.dataset.getNumberOfGenotypes(); i++){
+		for(int i=0; i<this.dataset.getNumberOfDifferentGenotypes(); i++){
 			GenotypeInfo gntInfo = new GenotypeInfo(this.dataset.get(i), this.dataset ,i);
 			genotypes.add(structure.add(gntInfo));
 		}

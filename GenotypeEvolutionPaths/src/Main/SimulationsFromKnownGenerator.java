@@ -297,8 +297,8 @@ public class SimulationsFromKnownGenerator {
 	
 	public static void main(String[] args) throws FileNotFoundException {
 		
-		GraphDatasetGeneratorAllowingMultipleMutations gen = new GraphDatasetGeneratorAllowingMultipleMutations(12);//generator3();
-		String path = "/home/rossi/Scrivania/Test_ripetizioni/random10/";
+		GraphDatasetGeneratorAllowingMultipleMutations gen = generator5();//new GraphDatasetGeneratorAllowingMultipleMutations(12);//generator3();
+		String path = "/home/rossi/Scrivania/Test_ripetizioni/biggerNotEqualSelfLoops/";
 		new File(path).mkdirs();
 		String datasetPath = path+"dataset/";
 		new File(datasetPath).mkdirs();
@@ -308,7 +308,7 @@ public class SimulationsFromKnownGenerator {
 		PrintStream out = new PrintStream(new BufferedOutputStream(new FileOutputStream(path + "generator.dot")), true);
 		gen.toDot(out);
 		out.close();
-		for (int j = 4; j <= 18; j++) {
+		for (int j = 8; j <=28 ; j++) {
 			for (int i = 10; i <= 100000; i *= 10) {
 				out = new PrintStream(new BufferedOutputStream(new FileOutputStream(path + "graph_"+i+"_"+j+".dot")), true);
 				PrintStream outDataset = new PrintStream(new BufferedOutputStream(new FileOutputStream(datasetPath + "dataset_"+i+"_"+j+".txt")), true);
