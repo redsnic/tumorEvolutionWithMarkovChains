@@ -63,6 +63,39 @@ public class SimulationsFromKnownGenerator {
 	}
 	
 	/**
+	 * Whith different self loop probabilities
+	 * @return
+	 */
+	private static GraphDatasetGeneratorAllowingMultipleMutations generatorTemp(){
+		String[] labels = {"A","B","C","D"};
+		GraphDatasetGeneratorAllowingMultipleMutations gen = new GraphDatasetGeneratorAllowingMultipleMutations(labels);
+		
+		boolean[] a    ={true,false, false, false};
+		boolean[] b    ={false,true, false, false};
+		boolean[] ab   ={true,true, false, false};
+		boolean[] abd = {true,true, false, true};
+		
+		Node<GenotypeGen> nroot = gen.getRoot();
+		Node<GenotypeGen> na    = gen.add(a);
+		Node<GenotypeGen> nb    = gen.add(b);
+		Node<GenotypeGen> nab   = gen.add(ab);
+		Node<GenotypeGen> nabd  = gen.add(abd);
+		
+		gen.link(nroot, nroot, 0.729);
+		gen.link(nroot, na, 0.104);
+		gen.link(nroot, nb, 0.167);
+		gen.link(na, nab, 0.167);
+		gen.link(na, na, 0.83);
+		gen.link(nb, nab, 0.5);
+		gen.link(nb, nb, 0.5);
+		gen.link(nab, nab, 0.75);
+		gen.link(nab, nabd, 0.25);
+		gen.link(nabd, nabd, 1);
+		return gen;
+		
+	}
+	
+	/**
 	 * Equal self loop probability
 	 * @return
 	 */
@@ -297,7 +330,8 @@ public class SimulationsFromKnownGenerator {
 	
 	public static void main(String[] args) throws FileNotFoundException {
 		
-		GraphDatasetGeneratorAllowingMultipleMutations gen = generator5();//new GraphDatasetGeneratorAllowingMultipleMutations(12);//generator3();
+		GraphDatasetGeneratorAllowingMultipleMutations gen = generatorTemp();//new GraphDatasetGeneratorAllowingMultipleMutations(12);//generator3();
+
 		String path = "/home/rossi/Scrivania/Test_ripetizioni/biggerNotEqualSelfLoops/";
 		new File(path).mkdirs();
 		String datasetPath = path+"dataset/";

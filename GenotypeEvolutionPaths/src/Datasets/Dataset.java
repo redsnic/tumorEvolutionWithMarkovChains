@@ -6,6 +6,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Scanner;
+import java.util.StringTokenizer;
 
 import Utils.Pair;
 import Utils.Triplet;
@@ -90,6 +91,42 @@ public class Dataset {
 	}
 	
 	/**
+	 * read data set from STDIN in CAPRI format
+	 * @throws DatasetAlreadyInitializedException if the dataset was already initialized
+	 */
+	public void readCAPRI() throws DatasetAlreadyInitializedException{
+		if(initialized){
+			throw new DatasetAlreadyInitializedException();
+		}
+		Scanner in = new Scanner(System.in);
+		readDataCAPRI(in);
+		in.close();
+		initialized=true;
+		filterClonalGenotypes();
+	}
+	
+	/**
+	 * read data set from a file in CAPRI format
+	 * @param path to input file
+	 * @throws DatasetAlreadyInitializedException if the dataset was already initialized
+	 */
+	public void readCAPRI(String path) throws DatasetAlreadyInitializedException{
+		if(initialized){
+			throw new DatasetAlreadyInitializedException();
+		}
+		try {
+			Scanner in = new Scanner(new File(path));
+			readDataCAPRI(in);
+			in.close();
+			initialized=true;
+			filterClonalGenotypes();
+		} catch (FileNotFoundException e) {
+			System.err.println("Error in reading input file!");
+			e.printStackTrace();
+		}
+	}
+	
+	/**
 	 * effectively reads a data set from a stream
 	 * @param in input stream
 	 */
@@ -106,6 +143,38 @@ public class Dataset {
 			boolean[] genotype = new boolean[nGenes];
 			for(int j=0; j<nGenes; j++){
 				genotype[j] = (in.nextInt()==1)?true:false;
+			}
+			genotypes.add(genotype);
+			frequencies.add(1);
+		}
+		
+		numberOfEntries = genotypes.size();
+	}
+	/**
+	
+	 * effectively reads a data set from a stream
+	 * @param in input stream
+	 */ 
+	private void readDataCAPRI(Scanner in) {
+		
+		StringTokenizer tok = new StringTokenizer(in.nextLine());
+		tok.nextToken(); // first element is not important
+		
+		int nGenes   = 0;
+		
+		while(tok.hasMoreTokens()){
+			this.labels.add(tok.nextToken());
+			nGenes++;
+		}
+		
+		while(in.hasNext()){
+			
+			StringTokenizer line = new StringTokenizer(in.nextLine());
+			line.nextToken(); // skip sample name
+			
+			boolean[] genotype = new boolean[nGenes];
+			for(int j=0; j<nGenes; j++){
+				genotype[j] = (Integer.parseInt(line.nextToken())==1)?true:false;
 			}
 			genotypes.add(genotype);
 			frequencies.add(1);
@@ -411,5 +480,7 @@ public class Dataset {
 	public int getNumberOfDifferentGenotypes() {
 		return this.genotypes.size();
 	}
+
+
 
 }

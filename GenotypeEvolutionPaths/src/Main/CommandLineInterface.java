@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
 
-import DatasetGeneratorsv2.GraphDatasetGeneratorAllowingMultipleMutations;
 import Datasets.Dataset;
 import GenotypeGraphsv2.GenotypeGraphAllowingMultipleMutations;
 
@@ -19,6 +18,7 @@ public class CommandLineInterface {
 		
 		String input = null;
 		String output = null;
+		boolean capri = false;
 		int shrink = 0;
 		
 		/*--- Read arguments ---*/
@@ -29,12 +29,14 @@ public class CommandLineInterface {
 				System.out.println("Program to extract tumor progression from a mutational matrix,");
 				System.out.println("output is in dot format (https://en.wikipedia.org/wiki/DOT_(graph_description_language)),");
 				System.out.println("for other information see: https://github.com/redsnic/tumorEvolutionWithMarkovChains");
-				System.out.println("Usage: input output [flags]");
+				System.out.println("Usage: -i input -o output [flags]");
 				System.out.println("Flags:");
 				System.out.println("-h, --help : show this help message");
 				System.out.println("-s n, --shrink n : reduces the number of considered genes to n");
 				System.out.println("-i in, --input in: set in as input file, by default input is read from STDIN");
 				System.out.println("-o out, --output out: set out as output file, by default output is written on STDOUT");
+				System.out.println("-c, --capri use CAPRI format for input (default BML format)");
+				
 				return;
 			}
 			
@@ -92,7 +94,9 @@ public class CommandLineInterface {
 					System.out.println("use -h or --help for more information");
 					return;
 				}
-			} else {
+			}else if(args[i].equals("-c") || args[i].equals("--capri")){
+				capri = true;
+			}else {
 					System.out.println("Error, invalid argument: " + args[i]);
 					System.out.println("use -h or --help for more information");
 					return;	
@@ -110,10 +114,14 @@ public class CommandLineInterface {
 		/*-- read --*/
 		
 		Dataset D = new Dataset();
-		if(input.toUpperCase() == "STDIN"){
+		if(input.toUpperCase() == "STDIN" && !capri){
 			D.read();
-		}else{
+		}else if(!capri){
 			D.read(input);
+		}else if(input.toUpperCase() == "STDIN"){
+			D.readCAPRI();
+		}else{
+			D.readCAPRI(input);
 		}
 		D.compact();
 		

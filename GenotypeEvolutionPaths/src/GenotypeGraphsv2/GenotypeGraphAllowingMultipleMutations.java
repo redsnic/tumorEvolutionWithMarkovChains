@@ -96,13 +96,13 @@ public class GenotypeGraphAllowingMultipleMutations extends GenotypeGraph {
 		/* refer to upWeights formula */
 		double weight = 0.;
 		for(Node<GenotypeInfo> parent : structure.par(position) ){
-			weight += upWeights.get(position.getId(), parent.getId());
+			weight += upWeights.get(parent.getId(), position.getId());
 		}
 		weight += position.getContent().getObservedProbability();
 		if(weight>0){
 			weight /= structure.getNumberOfChildren(position);
 		}else {
-			weight = 1.;
+			weight = 0.; // epsilon
 		}
 		
 		for(Node<GenotypeInfo> child : structure.adj(position) ){
@@ -128,8 +128,12 @@ public class GenotypeGraphAllowingMultipleMutations extends GenotypeGraph {
 			for(Node<GenotypeInfo> parent : par){
 				norm += upWeights.get(parent.getId(), node.getId());
 			}
-			for(Node<GenotypeInfo> parent : par){
-				upWeights.set(parent.getId(), node.getId(), upWeights.get(parent.getId(), node.getId())/(double) norm);
+			if(norm == 0.){ /* if it is connected to the root directly */
+				upWeights.set(root.getId(), node.getId(), 1.);
+			}else{
+				for(Node<GenotypeInfo> parent : par){
+					upWeights.set(parent.getId(), node.getId(), upWeights.get(parent.getId(), node.getId())/(double) norm);
+				}
 			}
 		}	
 	}
