@@ -7,6 +7,7 @@ import java.util.List;
 import Datasets.Dataset;
 import Graphs.DirectedWeightedGraphMatrix;
 import Graphs.Node;
+import Utils.SquareMatrix;
 import Utils.Utils;
 
 public class GraphDatasetGeneratorAllowingMultipleMutations {
@@ -219,7 +220,34 @@ public class GraphDatasetGeneratorAllowingMultipleMutations {
 		}
 		return genes;
 	}
-	
-	
 
+	/**
+	 * get adj matrix size
+	 * @return
+	 */
+	public int getSize(){
+		return structure.getSize();
+	}
+	
+	/**
+	 * compute the probabilities after a transition
+	 * @param initial
+	 * @return
+	 */
+	public ArrayList<Double> computeNextStepProbabilities(ArrayList<Double> initial){
+		return this.structure.getMatrix().vecProduct(initial);
+	}
+	
+	/**
+	 * return names labels list
+	 * @return
+	 */
+	public ArrayList<String> getNames(){
+		ArrayList<String> names = new ArrayList<String>();
+		for(Node<GenotypeGen> node : this.structure.getNodes()){
+			names.add( ""+translate(node.getContent().get()) );
+		}
+		return names;
+	}
+	
 }

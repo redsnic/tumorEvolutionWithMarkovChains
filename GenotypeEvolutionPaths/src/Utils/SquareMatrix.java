@@ -22,6 +22,22 @@ public class SquareMatrix <T>{
 			this.initializzationValue = init;
 	}
 	
+	
+	/**
+	 * copy constructor
+	 * @param other
+	 */
+	public SquareMatrix(SquareMatrix<T> other) {
+		this.initializzationValue = other.initializzationValue;
+		this.enlarge(other.size);
+		for(int i = 0; i<other.size; i++){
+			for(int j=0; j<other.size; j++){
+				this.set(i, j, other.get(i, j));
+			}
+		}
+		
+	}
+
 	/**
 	 * Makes this matrix a row and a column larger
 	 */
@@ -73,6 +89,45 @@ public class SquareMatrix <T>{
 	 */
 	public int getSize(){
 		return size;
+	}
+	
+	/**
+	 * matricial product
+	 * @param other
+	 * @return
+	 */
+	public SquareMatrix<Double> multiply(SquareMatrix<T> other){
+		assert this.size == other.getSize() : "Matrices must be of the same dimension for multiplication!";
+		SquareMatrix<Double> out = new SquareMatrix<Double>(0.);
+		out.enlarge(this.size);
+		/* check bounds */
+		for(int i = 0; i< this.size; i++){
+			for(int j=0; j<this.size; j++){
+				Double cell = 0.;
+				for(int k = 0; k<this.size; k++){
+					cell += (Double) this.get(i,k) * (Double) other.get(k, j);
+				}
+				out.set(i, j, cell);
+			}
+		}
+		return out;
+	}
+	
+	/**
+	 * premultiply row vector
+	 * @param vect
+	 * @return
+	 */
+	public ArrayList<Double> vecProduct(ArrayList<Double> vect){
+		ArrayList<Double> out = new ArrayList<Double>();
+		for(int i = 0; i<this.size; i++){
+			Double cell = 0.;
+			for(int k=0; k<this.size; k++){
+				cell += vect.get(k) * (Double) this.get(k,i);
+			}
+			out.add(cell);
+		}
+		return out;
 	}
 	
 }

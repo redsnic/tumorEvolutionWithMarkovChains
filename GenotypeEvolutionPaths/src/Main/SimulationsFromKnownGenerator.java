@@ -18,7 +18,7 @@ public class SimulationsFromKnownGenerator {
 	 * Whith different self loop probabilities
 	 * @return
 	 */
-	private static GraphDatasetGeneratorAllowingMultipleMutations generator1(){
+	public static GraphDatasetGeneratorAllowingMultipleMutations generator1(){
 		String[] labels = {"A","B","C","D"};
 		GraphDatasetGeneratorAllowingMultipleMutations gen = new GraphDatasetGeneratorAllowingMultipleMutations(labels);
 		
@@ -39,9 +39,9 @@ public class SimulationsFromKnownGenerator {
 		Node<GenotypeGen> nbd   = gen.add(bd);
 		Node<GenotypeGen> nabd  = gen.add(abd);
 		
-		gen.link(nroot, nroot, 0.9);
-		gen.link(nroot, nb, 0.05);
-		gen.link(nroot, na, 0.05);
+		gen.link(nroot, nroot, 0);
+		gen.link(nroot, nb, 0.5);
+		gen.link(nroot, na, 0.5);
 		gen.link(nb, nb, 0.8);
 		gen.link(nb, nbd, 0.10);
 		gen.link(nb, nab, 0.10);
@@ -326,37 +326,89 @@ public class SimulationsFromKnownGenerator {
 		
 	}
 	
-	
-	
-	public static void main(String[] args) throws FileNotFoundException {
+	/**
+	 * Simple example of a generator, use this as template to add new generators
+	 */
+	public static GraphDatasetGeneratorAllowingMultipleMutations simpleGenerator(){
+		/* list the names of all the genes */
+		String[] labels = {"A","B","C"};   
+		/* create gnerator object */
+		GraphDatasetGeneratorAllowingMultipleMutations gen = new GraphDatasetGeneratorAllowingMultipleMutations(labels);
+		/* prepare genotypes, order of boolean values must respect that of labels */
+		boolean[] _a      =  {true,  false, false};
+		boolean[] _b      =  {false, true,  false};
+		boolean[] _ab     =  {true,  true,  false};
+		boolean[] _ac     =  {true,  false,  true};
 		
-		GraphDatasetGeneratorAllowingMultipleMutations gen = generatorTemp();//new GraphDatasetGeneratorAllowingMultipleMutations(12);//generator3();
-
-		String path = "/home/rossi/Scrivania/Test_ripetizioni/biggerNotEqualSelfLoops/";
+		/* prepare node obects */
+		Node<GenotypeGen> root = gen.getRoot();
+		Node<GenotypeGen> a      = gen.add(_a);
+		Node<GenotypeGen> b      = gen.add(_b);
+		Node<GenotypeGen> ab     = gen.add(_ab);
+		Node<GenotypeGen> ac    = gen.add(_ac);
+		
+		/* prepare the edges - source, destination, weights -*/
+		/* note that weights are automatically normalized to 1 */
+		gen.link(root, root, 0);
+		gen.link(root, a, 0.5);
+		gen.link(root, b, 0.5);
+		gen.link(a, a, 0.5);
+		gen.link(a, ab, 0.4);
+		gen.link(a, ac, 0.1);
+		gen.link(b, b, 0.6);
+		gen.link(b, ab, 0.4);
+		gen.link(ac,ac,1);
+		gen.link(ab, ab, 1);
+		/* return the newly created generator */
+		return gen;
+	}
+	
+	/* simulation */
+	public static void main(String[] args) throws FileNotFoundException {
+		/* choose generator */
+		GraphDatasetGeneratorAllowingMultipleMutations gen = generator1();
+		/* output path */
+		String path = "/home/redsnic/Scrivania/Test_ripetizioni/TestK5/";
 		new File(path).mkdirs();
 		String datasetPath = path+"dataset/";
 		new File(datasetPath).mkdirs();
 		
-	
 		System.out.println("Generator");
 		PrintStream out = new PrintStream(new BufferedOutputStream(new FileOutputStream(path + "generator.dot")), true);
+		/* output location for plot data: it is possible to use a python script to plot the empirical probabilities distribution as a function of k */
+		PrintStream outPlot = new PrintStream(new BufferedOutputStream(new FileOutputStream(path + "plotData.txt")), true);
 		gen.toDot(out);
 		out.close();
-		for (int j = 8; j <=28 ; j++) {
-			for (int i = 10; i <= 100000; i *= 10) {
+		
+		/* simulation paths length */
+		int Kmin = 1;
+		int Kmax = 150;
+		/* number of simulatrions for dataset generation */
+		int accuracyMin = 1000000;
+		int accuracyMax = 1000000;
+		
+		
+		for (int j = Kmin; j <=Kmax ; j++) {
+			/*                                            step */
+			for (int i = accuracyMin; i <= accuracyMax; i *= 10) {
+				/* prepare output */
 				out = new PrintStream(new BufferedOutputStream(new FileOutputStream(path + "graph_"+i+"_"+j+".dot")), true);
 				PrintStream outDataset = new PrintStream(new BufferedOutputStream(new FileOutputStream(datasetPath + "dataset_"+i+"_"+j+".txt")), true);
 				System.out.println("Graph with " + i + " samples and path length " + j);
-				Dataset data = gen.generate(i, j); 
+				/* siulate */
+				Dataset data = gen.generate(i, j);
+				/* save dataset */
 				data.printTRONCOFormat(outDataset);
 				GenotypeGraphAllowingMultipleMutations grp = new GenotypeGraphAllowingMultipleMutations(data);
 				grp.toDot(out);
+				/* plot data output */
+				outPlot.println("> " + j); // header (indica k)
+				grp.plotData(outPlot);     // plot informations
 				out.close();
 				outDataset.close();
 			}
 		}
-		
-		
+		outPlot.close();
+		System.out.println("Done");
 	}
-
 }

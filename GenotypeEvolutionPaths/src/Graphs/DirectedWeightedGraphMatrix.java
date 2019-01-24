@@ -85,4 +85,20 @@ public class DirectedWeightedGraphMatrix<T> extends DirectedGraphMatrix<T>{
 		return W.get(a.getId(), b.getId());
 	}
 	
+	/**
+	 * get adj matrix
+	 * @return
+	 */
+	public SquareMatrix<Double> getMatrix(){
+		return (SquareMatrix<Double>) new SquareMatrix<Double>(W);
+	}
+	
+	/**
+	 * get size of adj matrix
+	 * @return
+	 */
+	public int getSize(){
+		return W.getSize();
+	}
+	
 }

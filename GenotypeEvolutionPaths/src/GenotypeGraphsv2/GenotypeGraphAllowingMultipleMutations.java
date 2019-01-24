@@ -1,5 +1,6 @@
 package GenotypeGraphsv2;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 
 import Datasets.Dataset;
@@ -63,9 +64,14 @@ public class GenotypeGraphAllowingMultipleMutations extends GenotypeGraph {
 		
 		SquareMatrix<Double> upWeights = computeUpWeights();
 		normalizeUp(upWeights);
+		/* UNCOMMENT down here to print upWeights */
+		//this.structure.setWeights(upWeights);
+		//this.toDot(System.out);
+		/* UNCOMMENT up here to print upWeights */
 		SquareMatrix<Double> downWeights = computeDownWeights(upWeights);
 		normalizeDown(downWeights);
 		this.structure.setWeights(downWeights);
+		
 		
 	}
 	
@@ -204,7 +210,16 @@ public class GenotypeGraphAllowingMultipleMutations extends GenotypeGraph {
 			}
 		}
 	}
-		
+
+	/**
+	 * Print probabilities in python script format for plotting
+	 * @param out
+	 */
+	public void plotData(PrintStream out) {
+		for(Node<GenotypeInfo> node : genotypes){
+			out.println(node.getContent().translate() + " " + node.getContent().getObservedProbability());
+		}
+	}
 	
 
 

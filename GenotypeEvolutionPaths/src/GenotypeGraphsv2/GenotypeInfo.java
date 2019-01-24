@@ -62,4 +62,8 @@ public class GenotypeInfo {
 		return dataset.translate(genotype).toString() + ", " + String.format("%.3f", this.observedProbability);
 	}
 	
+	public String translate(){
+		return dataset.translate(genotype).toString();
+	}
+	
 }
