@@ -26,7 +26,7 @@ public class ExactProbabilities {
 	
 	public static void main(String[] args) throws FileNotFoundException{
 		/* output path */
-		String path = "/home/redsnic/Scrivania/Test_ripetizioni/testEvoluzione1.txt";
+		String path = "/home/redsnic/Scrivania/Test_ripetizioni/testEvoluzione111.txt";
 		PrintStream out = new PrintStream(new BufferedOutputStream(new FileOutputStream(path)), true);
 		/* prepare generator */
 		GraphDatasetGeneratorAllowingMultipleMutations gen = Main.SimulationsFromKnownGenerator.simpleGenerator();
