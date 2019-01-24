@@ -9,6 +9,7 @@ import java.util.Scanner;
 import java.util.StringTokenizer;
 
 import Utils.Pair;
+import Utils.Quadruplet;
 import Utils.Triplet;
 import Utils.Utils;
 
@@ -46,6 +47,10 @@ public class Dataset {
 	 * genotypes present in the data set
 	 */
 	private ArrayList<boolean[]>  genotypes = new ArrayList<boolean[]>();
+	/**
+	 * Manages sample IDs
+	 */
+	private ArrayList<ArrayList<String>> samples = new ArrayList<ArrayList<String>>();
 	/**
 	 * number of times a given genotype is present in the dataset (always 1 if data set is not compacted)
 	 */
@@ -139,7 +144,9 @@ public class Dataset {
 		}
 		
 		for(int i = 0; i<nSamples; i++){
-			in.next(); // skip sample name
+			ArrayList<String> sample = new ArrayList<String>();
+			sample.add(in.next()); // sample name
+			samples.add(sample);
 			boolean[] genotype = new boolean[nGenes];
 			for(int j=0; j<nGenes; j++){
 				genotype[j] = (in.nextInt()==1)?true:false;
@@ -171,9 +178,10 @@ public class Dataset {
 		
 		while(in.hasNext()){
 			
-			StringTokenizer line = new StringTokenizer(in.nextLine());
-			line.nextToken(); // skip sample name
-			
+			StringTokenizer line = new StringTokenizer(in.nextLine());			
+			ArrayList<String> sample = new ArrayList<String>();
+			sample.add(line.nextToken()); // sample name
+			samples.add(sample);
 			boolean[] genotype = new boolean[nGenes];
 			for(int j=0; j<nGenes; j++){
 				genotype[j] = (Integer.parseInt(line.nextToken())==1)?true:false;
@@ -198,9 +206,14 @@ public class Dataset {
 		for(String l : labels){
 			this.labels.add(l);
 		}
+		int i = 0;
 		for(boolean[] genotype : data){
+			i++;
 			genotypes.add(genotype);
 			frequencies.add(1);
+			ArrayList<String> s = new ArrayList<String>();
+			s.add("s_" + i);
+			samples.add(s);
 		}
 		numberOfEntries = genotypes.size();
 		initialized = true;
@@ -214,13 +227,15 @@ public class Dataset {
 	public void compact() {
 
 		ArrayList<Pair<boolean[], Integer>> mutationCounts = countMutations();
-		ArrayList<Triplet<boolean[], Integer, Integer>> mutationCountAndFrequency = new ArrayList<Triplet<boolean[], Integer, Integer>>();
+		/* genotype, mutationCounts, observed frequency, sample labels */
+		ArrayList<Quadruplet<boolean[], Integer, Integer, ArrayList<String>>> mutationCountAndFrequency = new ArrayList<Quadruplet<boolean[], Integer, Integer,  ArrayList<String>>>();
 		for (int i = 0; i < mutationCounts.size(); i++) {
-			mutationCountAndFrequency.add(new Triplet<boolean[], Integer, Integer>(mutationCounts.get(i).fst(),
-					mutationCounts.get(i).snd(), this.frequencies.get(i)));
+			mutationCountAndFrequency.add(new Quadruplet<boolean[], Integer, Integer, ArrayList<String>>(mutationCounts.get(i).fst(),
+					mutationCounts.get(i).snd(), this.frequencies.get(i),
+					this.samples.get(i)));
 		}
 		Collections.sort(mutationCountAndFrequency, (a, b) -> Utils.genotypeBinaryValueCompare(a.fst(), b.fst()));
-		Collections.sort(mutationCountAndFrequency, (a, b) -> a.snd() > b.snd() ? 1 : a.snd() == b.snd() ? 0 : -1);
+		Collections.sort(mutationCountAndFrequency, (a, b) -> (a.snd() > b.snd()) ? 1 : ((a.snd().equals(b.snd())) ? 0 : -1));
 		collapse(mutationCountAndFrequency);
 
 		compacted = true;
@@ -334,24 +349,31 @@ public class Dataset {
 	 * Removes the copies of the same genotype and increases the frequency of that genotype accordingly
 	 * @param mutationCountAndFrequency genotypes REQUIRE sorted by binary number and number of mutations
  	 */
-	private void collapse(ArrayList<Triplet<boolean[], Integer, Integer>> mutationCountAndFrequency) {
+	private void collapse(ArrayList<Quadruplet<boolean[], Integer, Integer, ArrayList<String>>> mutationCountAndFrequency) {
 		/* compact: sum frequencies of equal genotypes and keep a single entry in the dataset */
 		boolean[] last = null;
-		ArrayList<Pair<boolean[], Integer>> compacted = new ArrayList<Pair<boolean[], Integer>>();
+		ArrayList<Triplet<boolean[], Integer, ArrayList<String>>> compacted = new ArrayList<Triplet<boolean[], Integer, ArrayList<String>>>();
+		ArrayList<String> sampleTemp = new ArrayList<String>();
 		for(int i=0; i<mutationCountAndFrequency.size(); i++){
 			if(last == null || Utils.genotypeBinaryValueCompare(mutationCountAndFrequency.get(i).fst(), last) != 0){
-			   last = mutationCountAndFrequency.get(i).fst();		
-			   compacted.add(new Pair<boolean[], Integer>(last , mutationCountAndFrequency.get(i).thr()));
+			   last = mutationCountAndFrequency.get(i).fst();
+			   sampleTemp = new ArrayList<String>();
+			   sampleTemp.addAll(mutationCountAndFrequency.get(i).four());
+			   compacted.add(new Triplet<boolean[], Integer, ArrayList<String>>(last , mutationCountAndFrequency.get(i).thr(), sampleTemp));
 			}else{
-				compacted.set(compacted.size()-1, new Pair<boolean[], Integer>(last , compacted.get(compacted.size()-1).snd()+mutationCountAndFrequency.get(i).thr() ) );
+				compacted.get(compacted.size()-1).thr().addAll(mutationCountAndFrequency.get(i).four());
+				compacted.set(compacted.size()-1, new Triplet<boolean[], Integer, ArrayList<String>>(last , compacted.get(compacted.size()-1).snd()+mutationCountAndFrequency.get(i).thr(),
+						compacted.get(compacted.size()-1).thr()));
 			}
 		}
 		/* apply changes */
 		this.genotypes = new ArrayList<boolean[]>();
 		this.frequencies = new ArrayList<Integer>();
-		for(Pair<boolean[], Integer> p : compacted){
+		this.samples = new ArrayList<ArrayList<String>>();
+		for(Triplet<boolean[], Integer, ArrayList<String>> p : compacted){
 			this.genotypes.add(p.fst());
 			this.frequencies.add(p.snd());
+			this.samples.add(p.thr());
 		}
 	}
 
@@ -452,11 +474,9 @@ public class Dataset {
 			out.print(s + " ");
 		}
 		out.println();
-		int num = 0;
 		for(int i = 0; i<this.genotypes.size(); i++){
 			for(int j = 0 ; j<this.frequencyOf(i); j++){
-				out.println("Sample_" + num + " " + Utils.BoolVecToString(this.genotypes.get(i)));
-				num++;
+				out.println(samples.get(i).get(j) + " " + Utils.BoolVecToString(this.genotypes.get(i)));
 			}
 		}
 	}
@@ -470,18 +490,29 @@ public class Dataset {
 			out.print(s + " ");
 		}
 		out.println();
-		int num = 0;
 		for(int i = 0; i<this.genotypes.size(); i++){
 			for(int j = 0 ; j<this.frequencyOf(i); j++){
-				out.println("Sample_" + num + " " + Utils.BoolVecToString(this.genotypes.get(i)));
-				num++;
+				out.println(samples.get(i).get(j) + " " + Utils.BoolVecToString(this.genotypes.get(i)));
 			}
 		}
 	}
 
+	/**
+	 * @return number of different genotypes after compacting 
+	 */
 	public int getNumberOfDifferentGenotypes() {
 		return this.genotypes.size();
 	}
+
+	/**
+	 * @param i position
+	 * @return the samples names of the i-th elements of the dataset  
+	 */
+	public ArrayList<String> getSamples(int i) {
+		return samples.get(i);
+	}
+	
+	
 
 
 

@@ -20,6 +20,8 @@ public class CommandLineInterface {
 		String output = null;
 		boolean capri = false;
 		int shrink = 0;
+		boolean printSamples = true;
+		boolean printGenotypes = true;
 		
 		/*--- Read arguments ---*/
 		
@@ -36,7 +38,8 @@ public class CommandLineInterface {
 				System.out.println("-i in, --input in: set in as input file, by default input is read from STDIN");
 				System.out.println("-o out, --output out: set out as output file, by default output is written on STDOUT");
 				System.out.println("-c, --capri use CAPRI format for input (default BML format)");
-				
+				System.out.println("--no-genotypes, do not print extended genotypes");
+				System.out.println("--no-samples, do not print samples names");
 				return;
 			}
 			
@@ -83,7 +86,7 @@ public class CommandLineInterface {
 				i++;
 				if(output == null){
 					output = args[i];
-					File f = new File(input);
+					File f = new File(output);
 					if (f.isDirectory()) {
 						System.out.println("Error, can not open output file: FILE IS A DIRECTORY");
 						System.out.println("use -h or --help for more information");
@@ -96,6 +99,10 @@ public class CommandLineInterface {
 				}
 			}else if(args[i].equals("-c") || args[i].equals("--capri")){
 				capri = true;
+			}else if(args[i].equals("--no-genotypes")){
+				printGenotypes = false;
+			}else if(args[i].equals("--no-samples")){
+				printSamples = false;
 			}else {
 					System.out.println("Error, invalid argument: " + args[i]);
 					System.out.println("use -h or --help for more information");
@@ -129,10 +136,10 @@ public class CommandLineInterface {
 		
 		GenotypeGraphAllowingMultipleMutations grp;
 		if(shrink == 0){
-			grp = new GenotypeGraphAllowingMultipleMutations(D);
+			grp = new GenotypeGraphAllowingMultipleMutations(D, printGenotypes, printSamples);
 		}else{
 			D.shrink(shrink);
-			grp = new GenotypeGraphAllowingMultipleMutations(D);
+			grp = new GenotypeGraphAllowingMultipleMutations(D, printGenotypes, printSamples);
 		}
 		
 		/*-- output --*/

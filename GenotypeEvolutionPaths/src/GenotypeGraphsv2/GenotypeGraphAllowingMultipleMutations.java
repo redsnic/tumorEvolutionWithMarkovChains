@@ -30,15 +30,31 @@ public class GenotypeGraphAllowingMultipleMutations extends GenotypeGraph {
 		super(dataset);
 	}
 
+	/**
+	 * constructor with printing information
+	 * @param dataset REQUIRE is compacted and its genotypes are sorted by number of mutations 
+	 * @param printGenotypes
+	 * @param printSamples
+	 */
+	public GenotypeGraphAllowingMultipleMutations(Dataset dataset, boolean printGenotypes, boolean printSamples) {
+		super(dataset);
+		/* set printing information */
+		for(Node<GenotypeInfo> info : genotypes ){
+			info.getContent().setPrintPreferences(printGenotypes, printSamples);
+		}
+	}
+
 	@Override
 	void addNodes(){
 		genotypes = new ArrayList<Node<GenotypeInfo>>();
 		/* add clonal genotype */
-		genotypes.add(structure.add(new GenotypeInfo(new boolean[dataset.getNumberOfGenes()], dataset, 0.)));
+		ArrayList<String> clonal = new ArrayList<String>();
+		clonal.add("clonal");
+		genotypes.add(structure.add(new GenotypeInfo(new boolean[dataset.getNumberOfGenes()], dataset, 0., clonal)));
 		root = genotypes.get(0);
 		
 		for(int i=0; i<this.dataset.getNumberOfDifferentGenotypes(); i++){
-			GenotypeInfo gntInfo = new GenotypeInfo(this.dataset.get(i), this.dataset ,i);
+			GenotypeInfo gntInfo = new GenotypeInfo(this.dataset.get(i), this.dataset ,i, this.dataset.getSamples(i));
 			genotypes.add(structure.add(gntInfo));
 		}
 	}
