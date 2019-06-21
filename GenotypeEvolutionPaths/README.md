@@ -28,7 +28,7 @@ cd tumorEvolutionWithMarkovChains
 Then compile everything by running:
 
 ```
-find -name "*.java" | grep -v "Test" > sources.txt && javac @sources.txt -d class; rm sources.txt ; cd class && jar -cf ../CIMICE.jar * && cd ..;
+mkdir class ; find -name "*.java" | grep -v "Test" > sources.txt && javac @sources.txt -d class; rm sources.txt ; cd class && jar -cf ../CIMICE.jar * && cd ..;
 ```
 
 now you should find CIMICE.jar in your current directory. Finally, to execute the program:
