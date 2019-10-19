@@ -39,4 +39,27 @@ java -cp CIMICE.jar Main.CommandLineInterface -h
 
 This should print the help message.
 
+## Input format
 
+There are two input formats for the input dataset:
+
+#### Default:
+
+```
+m
+n
+gene_1 gene_2 ... gene_n
+sample_1 1 0 ... 0
+...
+sample_m 1 1 ... 1
+```
+
+#### CAPRI-like format:
+
+```
+s/g    gene_1 gene_2 ... gene_n
+sample_1 1 0 ... 0
+...
+sample_m 1 1 ... 1
+```
+this latter format is recommended and it can be used by setting the -c flag when calling the program.   
